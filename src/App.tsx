@@ -52,24 +52,24 @@ function App() {
                   <div>
                     <h4 className="text-md mb-sm font-heading">Mana Symbols</h4>
                     <div className="mana-cost mb-sm">
-                      <i className="ms ms-3"></i>
-                      <i className="ms ms-w"></i>
-                      <i className="ms ms-u"></i>
-                      <i className="ms ms-b"></i>
-                      <i className="ms ms-r"></i>
-                      <i className="ms ms-g"></i>
-                      <i className="ms ms-c"></i>
-                      <i className="ms ms-x"></i>
+                      <i className="ms ms-3 ms-cost ms-shadow"></i>
+                      <i className="ms ms-w ms-cost ms-shadow"></i>
+                      <i className="ms ms-u ms-cost ms-shadow"></i>
+                      <i className="ms ms-b ms-cost ms-shadow"></i>
+                      <i className="ms ms-r ms-cost ms-shadow"></i>
+                      <i className="ms ms-g ms-cost ms-shadow"></i>
+                      <i className="ms ms-c ms-cost ms-shadow"></i>
+                      <i className="ms ms-x ms-cost ms-shadow"></i>
                     </div>
                     <div className="mana-cost mb-sm">
-                      <i className="ms ms-wu"></i>
-                      <i className="ms ms-ub"></i>
-                      <i className="ms ms-br"></i>
-                      <i className="ms ms-rg"></i>
-                      <i className="ms ms-gw"></i>
-                      <i className="ms ms-tap"></i>
-                      <i className="ms ms-loyalty-up"></i>
-                      <i className="ms ms-loyalty-down"></i>
+                      <i className="ms ms-wu ms-cost ms-shadow"></i>
+                      <i className="ms ms-ub ms-cost ms-shadow"></i>
+                      <i className="ms ms-br ms-cost ms-shadow"></i>
+                      <i className="ms ms-rg ms-cost ms-shadow"></i>
+                      <i className="ms ms-gw ms-cost ms-shadow"></i>
+                      <i className="ms ms-tap ms-cost ms-shadow"></i>
+                      <i className="ms ms-loyalty-up ms-loyalty-3"></i>
+                      <i className="ms ms-loyalty-down ms-loyalty-4"></i>
                     </div>
                     <p className="text-sm text-secondary">
                       Complete mana symbol library with hybrid, loyalty, and special symbols

@@ -14,22 +14,27 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   className = '',
   label = 'Loading...',
 }) => {
-  const { enableAnimations } = useGSAPContext();
+  const { enableAnimations, isInitialized } = useGSAPContext();
   const spinnerRef = useLoadingAnimation(true);
 
   const sizeClasses = {
-    sm: 'w-4 h-4',
-    md: 'w-6 h-6',
-    lg: 'w-8 h-8',
+    sm: "16px",
+    md: "24px",
+    lg: "32px",
   };
+
+  // Always show animation - use GSAP if available and enabled, otherwise CSS fallback
+  const useGSAPAnimation = isInitialized && enableAnimations;
 
   return (
     <div className={`flex items-center justify-center ${className}`}>
       <div
-        ref={enableAnimations ? (spinnerRef as React.RefObject<HTMLDivElement>) : null}
-        className={`${sizeClasses[size]} border-2 border-secondary border-t-accent rounded-full ${
-          !enableAnimations ? 'loading-spinner' : ''
-        }`}
+        ref={useGSAPAnimation ? (spinnerRef as React.RefObject<HTMLDivElement>) : null}
+        className={`border-2 border-secondary border-t-accent rounded-full loading-spinner`}
+        style={{
+          width: sizeClasses[size],
+          height: sizeClasses[size],
+        }}
         aria-label={label}
         role="status"
       />

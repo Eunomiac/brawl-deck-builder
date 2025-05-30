@@ -14,7 +14,7 @@ This guide covers the integration and usage of MTG-themed fonts in the Brawl Dec
 - **Usage**: `font-family: var(--font-beleren)` or `.font-heading` class
 - **Characteristics**: Bold, fantasy-style font used on MTG cards
 
-### **MPlantin Font** - MTG Body Font  
+### **MPlantin Font** - MTG Body Font
 - **Purpose**: Body text, descriptions, and flavor text
 - **Usage**: `font-family: var(--font-mplantin)` or `.font-body` class
 - **Characteristics**: Serif font used for MTG card text
@@ -35,7 +35,7 @@ This guide covers the integration and usage of MTG-themed fonts in the Brawl Dec
 ### **Font Family Classes**
 - `.font-system` - System default font
 - `.font-heading` - Beleren font for titles
-- `.font-body` - MPlantin font for body text  
+- `.font-body` - MPlantin font for body text
 - `.font-mana` - Mana font for symbols
 
 ### **MTG-Specific Classes**
@@ -43,6 +43,58 @@ This guide covers the integration and usage of MTG-themed fonts in the Brawl Dec
 - `.flavor-text` - Italicized flavor text using MPlantin
 - `.mana-symbol` - Base styling for mana symbols
 - `.mana-cost` - Container for mana cost display
+
+## 🎯 **Usage Patterns & Best Practices**
+
+### **🔍 Key Concepts**
+
+**Basic Icons vs Casting Costs:**
+- **Basic icons** (`ms ms-u`) show simple symbols without circles
+- **Casting costs** (`ms ms-u ms-cost`) add circles around symbols for mana costs
+- **Shadows** (`ms-shadow`) add depth to casting cost circles
+
+**Critical Rule for Hybrid Mana:**
+- Hybrid symbols (`ms-wu`, `ms-ub`, etc.) **REQUIRE** the `ms-cost` class to display properly
+- Without `ms-cost`, hybrid symbols will not render correctly
+
+### **📋 Usage Patterns**
+
+#### **Pattern 1: Simple Icons (No Circles)**
+```html
+<!-- Use for: Card text, ability descriptions, simple references -->
+<i class="ms ms-w"></i>  <!-- White mana symbol -->
+<i class="ms ms-tap"></i> <!-- Tap symbol -->
+```
+
+#### **Pattern 2: Casting Costs (With Circles)**
+```html
+<!-- Use for: Mana costs, deck building, card displays -->
+<i class="ms ms-3 ms-cost"></i>                    <!-- 3 generic -->
+<i class="ms ms-w ms-cost ms-shadow"></i>          <!-- White with shadow -->
+<i class="ms ms-wu ms-cost ms-shadow"></i>         <!-- Hybrid (REQUIRES ms-cost) -->
+```
+
+#### **Pattern 3: Loyalty Symbols (With Numbers)**
+```html
+<!-- Use for: Planeswalker abilities -->
+<i class="ms ms-loyalty-up ms-loyalty-3"></i>      <!-- +3 ability -->
+<i class="ms ms-loyalty-down ms-loyalty-2"></i>    <!-- -2 ability -->
+<i class="ms ms-loyalty-start ms-loyalty-4"></i>   <!-- Starting loyalty 4 -->
+```
+
+#### **Pattern 4: Saga & Battle Symbols**
+```html
+<!-- Use for: Saga chapters and Battle defense -->
+<i class="ms ms-saga ms-saga-1"></i>               <!-- Chapter I -->
+<i class="ms ms-defense ms-defense-3"></i>         <!-- Defense 3 -->
+```
+
+#### **Pattern 5: Size & Alignment**
+```html
+<!-- Use for: Emphasis, headers, lists -->
+<i class="ms ms-r ms-2x"></i>                      <!-- 2x larger -->
+<i class="ms ms-planeswalker ms-fw"></i>           <!-- Fixed width for lists -->
+```
 
 ## ⚡ **Mana Symbol Usage**
 
@@ -64,21 +116,36 @@ This guide covers the integration and usage of MTG-themed fonts in the Brawl Dec
 <i class="ms ms-x"></i>  <!-- X mana -->
 ```
 
-### **Hybrid Mana**
+### **Hybrid Mana (REQUIRES ms-cost)**
 ```html
-<i class="ms ms-wu"></i>  <!-- White/Blue -->
-<i class="ms ms-ub"></i>  <!-- Blue/Black -->
-<i class="ms ms-br"></i>  <!-- Black/Red -->
-<i class="ms ms-rg"></i>  <!-- Red/Green -->
-<i class="ms ms-gw"></i>  <!-- Green/White -->
+<!-- ⚠️ IMPORTANT: Hybrid symbols MUST include ms-cost class to work -->
+<i class="ms ms-wu ms-cost"></i>          <!-- White/Blue -->
+<i class="ms ms-ub ms-cost ms-shadow"></i> <!-- Blue/Black with shadow -->
+<i class="ms ms-br ms-cost"></i>          <!-- Black/Red -->
+<i class="ms ms-rg ms-cost"></i>          <!-- Red/Green -->
+<i class="ms ms-gw ms-cost"></i>          <!-- Green/White -->
 ```
 
 ### **Special Symbols**
 ```html
 <i class="ms ms-tap"></i>        <!-- Tap symbol -->
 <i class="ms ms-untap"></i>      <!-- Untap symbol -->
-<i class="ms ms-loyalty-up"></i> <!-- Loyalty up -->
-<i class="ms ms-loyalty-down"></i> <!-- Loyalty down -->
+```
+
+### **Planeswalker Loyalty (With Numbers)**
+```html
+<i class="ms ms-loyalty-up ms-loyalty-3"></i>     <!-- +3 loyalty -->
+<i class="ms ms-loyalty-down ms-loyalty-2"></i>   <!-- -2 loyalty -->
+<i class="ms ms-loyalty-start ms-loyalty-4"></i>  <!-- Starting loyalty 4 -->
+<i class="ms ms-loyalty-zero"></i>                <!-- 0 loyalty -->
+```
+
+### **Saga & Battle Symbols**
+```html
+<i class="ms ms-saga ms-saga-1"></i>              <!-- Chapter I -->
+<i class="ms ms-saga ms-saga-2"></i>              <!-- Chapter II -->
+<i class="ms ms-defense ms-defense-3"></i>        <!-- Defense 3 -->
+<i class="ms ms-defense ms-defense-5"></i>        <!-- Defense 5 -->
 ```
 
 ### **Card Types**
@@ -135,7 +202,7 @@ This guide covers the integration and usage of MTG-themed fonts in the Brawl Dec
 
 The mana symbols include CSS custom properties for colors:
 - `--ms-mana-w: #fffbd5` (White)
-- `--ms-mana-u: #bcdaf7` (Blue)  
+- `--ms-mana-u: #bcdaf7` (Blue)
 - `--ms-mana-b: #a7999e` (Black)
 - `--ms-mana-r: #f19b79` (Red)
 - `--ms-mana-g: #9fcba6` (Green)

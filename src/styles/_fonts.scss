@@ -71,12 +71,18 @@
   vertical-align: middle;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
+
   // MTG mana color CSS variables (adapted for our dark theme)
   --ms-mana-w: #fffbd5;  // White mana
-  --ms-mana-u: #bcdaf7;  // Blue mana  
+  --ms-mana-u: #bcdaf7;  // Blue mana
   --ms-mana-b: #a7999e;  // Black mana
   --ms-mana-r: #f19b79;  // Red mana
   --ms-mana-g: #9fcba6;  // Green mana
   --ms-mana-c: #d0c6bb;  // Colorless mana
+}
+
+// Fix loyalty symbols to use white color like other mana symbols
+.ms-loyalty-up,
+.ms-loyalty-down {
+  color: #ffffff !important; // Use white like other symbols
 }
