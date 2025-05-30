@@ -10,7 +10,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "echo \"Jest tests will be implemented in MTGBDB-19\" && exit 0",
+    "test:coverage": "echo \"Jest coverage will be implemented in MTGBDB-19\" && exit 0"
   },
   "dependencies": {
     "gsap": "^3.13.0",
