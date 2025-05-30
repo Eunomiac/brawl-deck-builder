@@ -18,10 +18,11 @@ dist-ssr/
 .env.test.local
 .env.production.local
 
-# Logs
+# Logs & Local Documentation
 logs/
 *.log
 test-report.xml
+docs/local/
 
 # Editor directories and files
 .vscode/*

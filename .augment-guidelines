@@ -132,6 +132,13 @@ Use available tools proactively and purposefully:
 - **Debug assistance**: Help debug test failures and improve code quality through testing
 - **Test execution timing**: When running tests, wait for user confirmation that tests have completed before checking terminal output - terminals may auto-close or show stale results
 
+### Code Quality and Issue Detection
+- **Diagnostics command**: Use `diagnostics` tool to programmatically check for all IDE-reported issues including SonarQube, TypeScript, ESLint, and accessibility problems
+- **Issue verification**: Run diagnostics before and after code changes to verify fixes and catch new issues
+- **SonarQube integration**: Diagnostics tool shows real-time SonarQube analysis results from connected SonarQube Cloud project
+- **Comprehensive coverage**: Diagnostics includes accessibility issues, React Hook violations, performance problems, and code quality suggestions
+- **Systematic fixing**: Use diagnostics output to prioritize and systematically address code quality issues
+
 ### User Learning Goals
 - Emphasize industry best practices and standards
 - Explain the reasoning behind recommendations
@@ -155,6 +162,11 @@ Use available tools proactively and purposefully:
 - **Array.includes() override**: Available globally - can check any value against typed arrays without type errors
 - **Co-locate types**: Keep TypeScript types/interfaces with implementation code in same .ts file
 - **Global types only**: Use .d.ts files only for global/ambient types and third-party library configurations
+- **Prefer String Enums**: Use string-valued enums instead of string literal union types for better runtime capabilities and maintainability
+  * Preferred: `enum Direction { Left = "left", Right = "right" }` (PascalCase keys, string values)
+  * Avoid: `type Direction = "left" | "right"` (no runtime validation, harder to refactor)
+  * **Shared enums**: Export from `utils/enums.ts` for cross-file usage
+  * **Single-file enums**: Define locally when used only within one file
 
 ## Flexibility
 

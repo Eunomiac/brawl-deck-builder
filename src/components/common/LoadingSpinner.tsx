@@ -1,7 +1,7 @@
 // MTG Brawl Deck Builder - GSAP Loading Spinner Component
 import React from 'react';
-import { useLoadingAnimation } from '../../hooks/useGSAP';
-import { useGSAPContext } from '../../contexts/GSAPContext';
+import {useGSAPContext} from '../../contexts/GSAPContext';
+import {useLoadingAnimation} from '../../hooks/useGSAP';
 
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg';
@@ -26,11 +26,10 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 
   return (
     <div className="flex items-center justify-center">
-      <div
-        ref={useGSAPAnimation ? (spinnerRef as React.RefObject<HTMLDivElement>) : null}
+      <output
+        ref={useGSAPAnimation ? (spinnerRef as React.RefObject<HTMLOutputElement>) : null}
         className={spinnerClasses}
         aria-label={label}
-        role="status"
       />
       {label && (
         <span className="sr-only">{label}</span>

@@ -177,7 +177,7 @@ export const draggableUtils = {
 
   // Create drop zone
   createDropZone: (element: HTMLElement, onDrop?: (draggable: Draggable) => void) => {
-    const dropZone = {
+    return {
       element,
       onDrop,
       highlight: () => {
@@ -195,13 +195,10 @@ export const draggableUtils = {
         });
       },
     };
-    return dropZone;
   },
 
   // Snap to grid utility
-  snapToGrid: (gridSize = 20) => {
-    return (value: number) => Math.round(value / gridSize) * gridSize;
-  },
+  snapToGrid: (gridSize = 20) => (value: number) => Math.round(value / gridSize) * gridSize,
 };
 
 // Timeline utilities for complex animations

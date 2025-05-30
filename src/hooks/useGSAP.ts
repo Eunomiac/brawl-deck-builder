@@ -2,15 +2,16 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { gsap } from 'gsap';
 import { animations, draggableUtils, ANIMATION_DURATION, EASING } from '../utils/animations';
+import { AnimationDirection } from '../utils/enums';
 import type { Draggable } from 'gsap/Draggable';
 
 // Hook for basic GSAP animations with cleanup
 export const useGSAP = (
-  animationFn: (element: HTMLElement) => gsap.core.Timeline | gsap.core.Tween,
+  animationFn: (element: HTMLElement) => GSAPAnimation,
   dependencies: React.DependencyList = []
 ) => {
   const elementRef = useRef<HTMLElement>(null);
-  const animationRef = useRef<gsap.core.Timeline | gsap.core.Tween | null>(null);
+  const animationRef = useRef<GSAPAnimation | null>(null);
 
   useEffect(() => {
     if (elementRef.current) {
@@ -29,6 +30,8 @@ export const useGSAP = (
         animationRef.current.kill();
       }
     };
+    // Intentionally using custom dependency array to give users control over when animations re-run
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
 
   // Cleanup on unmount
@@ -61,7 +64,7 @@ export const useFadeIn = (duration = ANIMATION_DURATION.NORMAL, delay = 0) => {
 
 // Hook for slide in animations
 export const useSlideIn = (
-  direction: 'left' | 'right' | 'up' | 'down' = 'up',
+  direction: AnimationDirection = AnimationDirection.Up,
   duration = ANIMATION_DURATION.NORMAL
 ) => {
   return useGSAP((element) => {
@@ -69,19 +72,19 @@ export const useSlideIn = (
     const toProps: Record<string, number> = { opacity: 1 };
 
     switch (direction) {
-      case 'left':
+      case AnimationDirection.Left:
         fromProps.x = -100;
         toProps.x = 0;
         break;
-      case 'right':
+      case AnimationDirection.Right:
         fromProps.x = 100;
         toProps.x = 0;
         break;
-      case 'up':
+      case AnimationDirection.Up:
         fromProps.y = 50;
         toProps.y = 0;
         break;
-      case 'down':
+      case AnimationDirection.Down:
         fromProps.y = -50;
         toProps.y = 0;
         break;
@@ -97,11 +100,11 @@ export const useSlideIn = (
 
 // Hook for hover animations
 export const useHoverAnimation = (
-  hoverAnimation: (element: HTMLElement) => gsap.core.Timeline | gsap.core.Tween,
-  hoverOutAnimation?: (element: HTMLElement) => gsap.core.Timeline | gsap.core.Tween
+  hoverAnimation: (element: HTMLElement) => GSAPAnimation,
+  hoverOutAnimation?: (element: HTMLElement) => GSAPAnimation
 ) => {
   const elementRef = useRef<HTMLElement>(null);
-  const hoverTween = useRef<gsap.core.Timeline | gsap.core.Tween | null>(null);
+  const hoverTween = useRef<GSAPAnimation | null>(null);
 
   const handleMouseEnter = useCallback(() => {
     if (elementRef.current) {
@@ -133,18 +136,20 @@ export const useHoverAnimation = (
 
   useEffect(() => {
     const element = elementRef.current;
-    if (element) {
-      element.addEventListener('mouseenter', handleMouseEnter);
-      element.addEventListener('mouseleave', handleMouseLeave);
-
-      return () => {
-        element.removeEventListener('mouseenter', handleMouseEnter);
-        element.removeEventListener('mouseleave', handleMouseLeave);
-        if (hoverTween.current) {
-          hoverTween.current.kill();
-        }
-      };
+    if (!element) {
+      return undefined;
     }
+
+    element.addEventListener('mouseenter', handleMouseEnter);
+    element.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      element.removeEventListener('mouseenter', handleMouseEnter);
+      element.removeEventListener('mouseleave', handleMouseLeave);
+      if (hoverTween.current) {
+        hoverTween.current.kill();
+      }
+    };
   }, [handleMouseEnter, handleMouseLeave]);
 
   return elementRef;
@@ -185,6 +190,8 @@ export const useDraggable = (
         draggableRef.current.kill();
       }
     };
+    // Intentionally using custom dependency array to allow flexible draggable recreation control
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
 
   // Cleanup on unmount
@@ -212,7 +219,7 @@ export const useStaggerAnimation = (
 
   useEffect(() => {
     if (containerRef.current) {
-      const items = containerRef.current.querySelectorAll(itemSelector) as NodeListOf<HTMLElement>;
+      const items = containerRef.current.querySelectorAll(itemSelector);
 
       if (items.length > 0) {
         gsap.fromTo(Array.from(items),
@@ -257,6 +264,8 @@ export const useTimeline = (
         timelineRef.current.kill();
       }
     };
+    // Intentionally using custom dependency array to allow precise timeline recreation control
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
 
   // Cleanup on unmount
@@ -280,16 +289,18 @@ export const useTimeline = (
 
 // Hook for scroll-triggered animations
 export const useScrollAnimation = (
-  animationFn: (element: HTMLElement) => gsap.core.Timeline | gsap.core.Tween,
+  animationFn: (element: HTMLElement) => GSAPAnimation,
   threshold = 0.1
 ) => {
   const elementRef = useRef<HTMLElement>(null);
-  const animationRef = useRef<gsap.core.Timeline | gsap.core.Tween | null>(null);
+  const animationRef = useRef<GSAPAnimation | null>(null);
   const hasAnimated = useRef(false);
 
   useEffect(() => {
     const element = elementRef.current;
-    if (!element) return;
+    if (!element) {
+      return undefined;
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {

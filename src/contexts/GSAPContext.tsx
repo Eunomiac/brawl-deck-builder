@@ -1,7 +1,7 @@
 // MTG Brawl Deck Builder - GSAP Context Provider
-import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { gsap } from 'gsap';
-import { initializeGSAP, performanceUtils } from '../utils/animations';
+import {gsap} from 'gsap';
+import React, {createContext, useContext, useEffect, useState, useMemo, type ReactNode} from 'react';
+import {initializeGSAP, performanceUtils} from '../utils/animations';
 
 interface GSAPContextType {
   isInitialized: boolean;
@@ -70,13 +70,13 @@ export const GSAPProvider: React.FC<GSAPProviderProps> = ({
     }
   }, [enableAnimations, reducedMotion, isInitialized]);
 
-  const contextValue: GSAPContextType = {
+  const contextValue: GSAPContextType = useMemo(() => ({
     isInitialized,
     gsap,
     enableAnimations: enableAnimations && !reducedMotion,
     setEnableAnimations,
     reducedMotion,
-  };
+  }), [isInitialized, enableAnimations, reducedMotion, setEnableAnimations]);
 
   return (
     <GSAPContext.Provider value={contextValue}>
@@ -86,6 +86,8 @@ export const GSAPProvider: React.FC<GSAPProviderProps> = ({
 };
 
 // Hook to use GSAP context
+// Co-locating hook with context provider for better maintainability and cohesion
+// eslint-disable-next-line react-refresh/only-export-components
 export const useGSAPContext = (): GSAPContextType => {
   const context = useContext(GSAPContext);
   if (context === undefined) {
@@ -95,6 +97,8 @@ export const useGSAPContext = (): GSAPContextType => {
 };
 
 // HOC for components that need GSAP
+// Co-locating HOC with context provider for better maintainability and cohesion
+// eslint-disable-next-line react-refresh/only-export-components
 export const withGSAP = <P extends object>(
   Component: React.ComponentType<P>
 ): React.FC<P> => {

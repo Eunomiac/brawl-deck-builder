@@ -1,7 +1,7 @@
 // MTG Brawl Deck Builder - Animated Card Component
-import React, { type ReactNode } from 'react';
-import { useCardHover, useFadeIn } from '../../hooks/useGSAP';
-import { useGSAPContext } from '../../contexts/GSAPContext';
+import React, {type ReactNode} from 'react';
+import {useGSAPContext} from '../../contexts/GSAPContext';
+import {useCardHover, useFadeIn} from '../../hooks/useGSAP';
 
 interface AnimatedCardProps {
   children: ReactNode;
@@ -22,19 +22,36 @@ export const AnimatedCard: React.FC<AnimatedCardProps> = ({
 }) => {
   const { enableAnimations } = useGSAPContext();
 
-  // Only apply animations if enabled
-  const hoverRef = enableAnimations && enableHover ? useCardHover() : null;
-  const fadeRef = enableAnimations && enableFadeIn ? useFadeIn(0.3, delay) : null;
+  // Always call hooks unconditionally (Rules of Hooks)
+  const hoverRef = useCardHover();
+  const fadeRef = useFadeIn(0.3, delay);
 
-  // Use the appropriate ref or create a fallback
-  const ref = hoverRef || fadeRef;
+  // Use the appropriate ref based on enabled animations
+  let ref = null;
+  if (enableAnimations && enableHover) {
+    ref = hoverRef;
+  } else if (enableAnimations && enableFadeIn) {
+    ref = fadeRef;
+  }
+
+  // Render as button when clickable for accessibility, otherwise as div
+  if (onClick) {
+    return (
+      <button
+        ref={ref as React.RefObject<HTMLButtonElement>}
+        className={`card ${className}`}
+        onClick={onClick}
+        style={{ cursor: 'pointer', border: 'none', background: 'none', padding: 0 }}
+      >
+        {children}
+      </button>
+    );
+  }
 
   return (
     <div
       ref={ref as React.RefObject<HTMLDivElement>}
       className={`card ${className}`}
-      onClick={onClick}
-      style={{ cursor: onClick ? 'pointer' : 'default' }}
     >
       {children}
     </div>

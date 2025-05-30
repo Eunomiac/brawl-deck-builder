@@ -1,8 +1,8 @@
 // MTG Brawl Deck Builder - Main Application Component
-import { GSAPProvider } from './contexts/GSAPContext';
-import { AnimatedCard } from './components/common/AnimatedCard';
-import { DraggableCard } from './components/common/DraggableCard';
-import { LoadingSpinner } from './components/common/LoadingSpinner';
+import {AnimatedCard} from './components/common/AnimatedCard';
+import {DraggableCard} from './components/common/DraggableCard';
+import {LoadingSpinner} from './components/common/LoadingSpinner';
+import {GSAPProvider} from './contexts/GSAPContext';
 
 function App() {
   return (
