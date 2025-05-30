@@ -1,0 +1,82 @@
+// MTG Brawl Deck Builder - Font Declarations
+// Font loading order: Mana Icons -> Beleren (Titles) -> MPlantin (Body)
+
+// Mana Icon Font - For mana symbols, set symbols, and MTG iconography
+@font-face {
+  font-family: 'Mana';
+  src: url('/assets/fonts/mana.eot?v=1.18.0');
+  src: url('/assets/fonts/mana.eot?#iefix&v=1.18.0') format('embedded-opentype'),
+       url('/assets/fonts/mana.woff2?v=1.18.0') format('woff2'),
+       url('/assets/fonts/mana.woff?v=1.18.0') format('woff'),
+       url('/assets/fonts/mana.ttf?v=1.18.0') format('truetype'),
+       url('/assets/fonts/mana.svg?v=1.18.0#mana') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap; // Improve loading performance
+}
+
+// Beleren Font - MTG's signature font for titles and headers
+@font-face {
+  font-family: 'Beleren';
+  src: url('/assets/fonts/beleren.eot');
+  src: url('/assets/fonts/beleren.eot?#iefix') format('embedded-opentype'),
+       url('/assets/fonts/beleren.woff') format('woff'),
+       url('/assets/fonts/beleren.ttf') format('truetype'),
+       url('/assets/fonts/beleren.svg#beleren') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+// Beleren Bold variant (if we need to add it later)
+@font-face {
+  font-family: 'Beleren';
+  src: url('/assets/fonts/beleren.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+// MPlantin Font - MTG's body text font for enhanced thematic consistency
+@font-face {
+  font-family: 'MPlantin';
+  src: url('/assets/fonts/mplantin.eot');
+  src: url('/assets/fonts/mplantin.eot?#iefix') format('embedded-opentype'),
+       url('/assets/fonts/mplantin.woff') format('woff'),
+       url('/assets/fonts/mplantin.ttf') format('truetype'),
+       url('/assets/fonts/mplantin.svg#mplantin') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+// Font family variables for easy usage throughout the app
+:root {
+  --font-mana: 'Mana', monospace;
+  --font-beleren: 'Beleren', 'Cinzel', 'Trajan Pro', serif;
+  --font-mplantin: 'MPlantin', 'Minion Pro', 'Adobe Garamond Pro', Georgia, serif;
+  --font-system: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+// Base mana symbol class (from mana font library)
+.ms {
+  display: inline-block;
+  font: normal normal normal 14px var(--font-mana);
+  font-size: inherit;
+  line-height: 1em;
+  text-rendering: auto;
+  transform: translate(0, 0);
+  speak: none;
+  text-transform: none;
+  vertical-align: middle;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  // MTG mana color CSS variables (adapted for our dark theme)
+  --ms-mana-w: #fffbd5;  // White mana
+  --ms-mana-u: #bcdaf7;  // Blue mana  
+  --ms-mana-b: #a7999e;  // Black mana
+  --ms-mana-r: #f19b79;  // Red mana
+  --ms-mana-g: #9fcba6;  // Green mana
+  --ms-mana-c: #d0c6bb;  // Colorless mana
+}

@@ -206,7 +206,7 @@
 // Interactive utilities
 .hover-lift {
   transition: transform 0.2s ease;
-  
+
   &:hover {
     transform: translateY(-2px);
   }
@@ -238,3 +238,45 @@
 
 // Input utilities
 .input { @include input-base; }
+
+// Font family utilities
+.font-system { font-family: $font-family-primary; }
+.font-heading { font-family: $font-family-heading; }
+.font-body { font-family: $font-family-body; }
+.font-mana { font-family: $font-family-mana; }
+
+// MTG-specific utilities
+.mana-symbol {
+  font-family: $font-family-mana;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  vertical-align: middle;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Mana cost display
+.mana-cost {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+
+  .ms {
+    font-size: 1.2em;
+  }
+}
+
+// Card title styling (using Beleren font)
+.card-title {
+  font-family: $font-family-heading;
+  font-weight: bold;
+  letter-spacing: 0.02em;
+}
+
+// Flavor text styling (using MPlantin font)
+.flavor-text {
+  font-family: $font-family-body;
+  font-style: italic;
+  opacity: 0.9;
+}

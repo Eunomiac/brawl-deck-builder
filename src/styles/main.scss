@@ -1,11 +1,15 @@
 // MTG Brawl Deck Builder - Main Stylesheet
-// Import order: Variables -> Mixins -> Globals -> Utilities -> Responsive -> Components
+// Import order: Fonts -> Variables -> Mixins -> Globals -> Utilities -> Responsive -> Vendor -> Components
 
+@use 'fonts';
 @use 'variables' as *;
 @use 'mixins' as *;
 @use 'globals';
 @use 'utilities';
 @use 'responsive';
+
+// Vendor libraries
+@use 'vendor/mana/mana';
 
 // Component styles
 @use 'components/app';

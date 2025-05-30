@@ -24,7 +24,11 @@ $spacing-xl: 2rem;
 $spacing-xxl: 3rem;
 
 // Typography
-$font-family-primary: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+$font-family-primary: var(--font-system);
+$font-family-heading: var(--font-beleren);
+$font-family-body: var(--font-mplantin);
+$font-family-mana: var(--font-mana);
+
 $font-size-sm: 0.875rem;
 $font-size-base: 1rem;
 $font-size-lg: 1.125rem;

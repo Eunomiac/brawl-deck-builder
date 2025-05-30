@@ -15,7 +15,7 @@ html {
 }
 
 body {
-  font-family: $font-family-primary;
+  font-family: $font-family-body;
   font-size: $font-size-base;
   line-height: 1.6;
   color: $text-color;
@@ -26,6 +26,7 @@ body {
 
 // Typography
 h1, h2, h3, h4, h5, h6 {
+  font-family: $font-family-heading;
   font-weight: 600;
   line-height: 1.2;
   margin-bottom: $spacing-md;
