@@ -177,6 +177,8 @@ The goal is to provide excellent coding assistance that helps create maintainabl
 - **Deployment**: Set up automatic deployments for web applications
 - **Collaboration**: Create pull requests for significant features or changes
 - **Integration**: Link commits and PRs to Linear issues when applicable
+- **Commit verification**: After git commit, use `git status` to verify success rather than reading from process output
+- **Avoid process hanging**: Don't attempt to read from or kill git processes - check status with separate commands
 
 ## Notion Documentation
 - **Documentation types**: Distinguish between development documentation (technical specs, API docs) and end-user documentation (user guides, tutorials)
