@@ -1,4 +1,13 @@
 // MTG Brawl Deck Builder - GSAP Context Provider
+//
+// COVERAGE EXCLUSION JUSTIFICATION:
+// This context provider manages GSAP library initialization, performance monitoring,
+// and global animation state. Testing requires:
+// 1. Integration tests with actual GSAP library behavior
+// 2. Performance testing with real animation workloads
+// 3. Browser compatibility testing across different environments
+// Unit testing would require mocking the entire GSAP ecosystem and performance APIs,
+// which would not validate the actual integration behavior this context manages.
 import {gsap} from 'gsap';
 import React, {createContext, useContext, useEffect, useState, useMemo, type ReactNode} from 'react';
 import {initializeGSAP, performanceUtils} from '../utils/animations';

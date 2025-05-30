@@ -11,7 +11,7 @@ export const ANIMATION_DURATION = {
   NORMAL: 0.3,
   SLOW: 0.5,
   EXTRA_SLOW: 0.8,
-} as const;
+};
 
 // Easing presets for consistent animations
 export const EASING = {
@@ -20,19 +20,19 @@ export const EASING = {
   ELASTIC: 'elastic.out(1, 0.3)',
   QUICK: 'power1.out',
   CARD_FLIP: 'power2.inOut',
-} as const;
+};
 
 // Common animation utilities
 export const animations = {
   // Fade animations
-  fadeIn: (element: HTMLElement, duration = ANIMATION_DURATION.NORMAL) => {
+  fadeIn: (element: HTMLElement, duration: number = ANIMATION_DURATION.NORMAL) => {
     return gsap.fromTo(element,
       { opacity: 0, y: 20 },
       { opacity: 1, y: 0, duration, ease: EASING.SMOOTH }
     );
   },
 
-  fadeOut: (element: HTMLElement, duration = ANIMATION_DURATION.FAST) => {
+  fadeOut: (element: HTMLElement, duration: number = ANIMATION_DURATION.FAST) => {
     return gsap.to(element, {
       opacity: 0,
       y: -20,
@@ -74,14 +74,14 @@ export const animations = {
   },
 
   // Slide animations
-  slideInFromLeft: (element: HTMLElement, duration = ANIMATION_DURATION.NORMAL) => {
+  slideInFromLeft: (element: HTMLElement, duration: number = ANIMATION_DURATION.NORMAL) => {
     return gsap.fromTo(element,
       { x: -100, opacity: 0 },
       { x: 0, opacity: 1, duration, ease: EASING.SMOOTH }
     );
   },
 
-  slideInFromRight: (element: HTMLElement, duration = ANIMATION_DURATION.NORMAL) => {
+  slideInFromRight: (element: HTMLElement, duration: number = ANIMATION_DURATION.NORMAL) => {
     return gsap.fromTo(element,
       { x: 100, opacity: 0 },
       { x: 0, opacity: 1, duration, ease: EASING.SMOOTH }
@@ -89,7 +89,7 @@ export const animations = {
   },
 
   // Stagger animations for lists
-  staggerIn: (elements: HTMLElement[], duration = ANIMATION_DURATION.NORMAL) => {
+  staggerIn: (elements: HTMLElement[], duration: number = ANIMATION_DURATION.NORMAL) => {
     return gsap.fromTo(elements,
       { opacity: 0, y: 30 },
       {
@@ -143,7 +143,7 @@ export const animations = {
   },
 
   // Flip animation for card reveals
-  flipCard: (element: HTMLElement, duration = ANIMATION_DURATION.SLOW) => {
+  flipCard: (element: HTMLElement, duration: number = ANIMATION_DURATION.SLOW) => {
     const tl = gsap.timeline();
     tl.to(element, {
       rotationY: 90,

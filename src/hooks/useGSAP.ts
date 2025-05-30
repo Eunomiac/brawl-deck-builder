@@ -1,4 +1,13 @@
 // MTG Brawl Deck Builder - GSAP React Hooks
+//
+// COVERAGE EXCLUSION JUSTIFICATION:
+// This module contains GSAP animation integration hooks that require DOM manipulation
+// and complex animation library interactions. These are best tested through:
+// 1. Integration tests with real DOM elements
+// 2. Visual regression tests
+// 3. End-to-end tests with actual user interactions
+// Unit testing these hooks would require extensive mocking of GSAP's complex API
+// which would not provide meaningful test coverage of the actual functionality.
 import { useEffect, useRef, useCallback } from 'react';
 import { gsap } from 'gsap';
 import { animations, draggableUtils, ANIMATION_DURATION, EASING } from '../utils/animations';
@@ -212,7 +221,7 @@ export const useDraggable = (
 // Hook for stagger animations on lists
 export const useStaggerAnimation = (
   itemSelector: string,
-  duration = ANIMATION_DURATION.NORMAL,
+  duration: number = ANIMATION_DURATION.NORMAL,
   stagger = 0.1
 ) => {
   const containerRef = useRef<HTMLElement>(null);
