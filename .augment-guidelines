@@ -95,20 +95,42 @@ Use available tools proactively and purposefully:
 - Always use appropriate package managers (npm, pip, cargo, etc.) instead of manually editing package files
 - Only edit package configuration files directly for complex configurations that can't be handled by package managers
 
+### Development Environment
+- **Keep dev server running**: Maintain active development server for continuous hot-reloading and immediate feedback
+- **Monitor in browser**: Allow user to observe changes in real-time through consistent browser window
+- **Restart only when necessary**: Only restart dev server when required for configuration changes or troubleshooting
+
 ### Testing and Validation
-- Suggest writing or updating tests after making code changes
-- Encourage running tests to verify changes work correctly
-- Help debug test failures and improve code quality
+- **Jest framework**: Use Jest for unit testing, component testing, and coverage reporting
+- **Test-driven development**: Suggest writing or updating tests after making code changes
+- **Coverage goals**: Maintain proper test coverage and help identify untested code paths
+- **Test types**: Include unit tests, integration tests, and snapshot tests for components
+- **Encourage testing**: Always suggest running tests to verify changes work correctly
+- **Debug assistance**: Help debug test failures and improve code quality through testing
 
 ### User Learning Goals
 - Emphasize industry best practices and standards
 - Explain the reasoning behind recommendations
 - Help build good coding habits through examples and guidance
 - Balance practical solutions with educational value
-- **Recognize skill level**: User is intermediate-level coder, novice with React, and new to Linear, Notion, Supabase, and Vite
+- **Recognize skill level**: User is intermediate-level coder, novice with React, and new to Linear, Notion, Supabase, Vite, and Jest
+- **Testing experience**: User wants more experience with Jest testing framework and maintaining proper test coverage
 - **Proactive guidance**: Don't assume user knows the "right" way to do things - offer guidance even when not explicitly asked
 - **Prevent common pitfalls**: Anticipate and warn about typical mistakes or suboptimal patterns, especially with unfamiliar tools
 - **Explain the "why"**: When suggesting alternatives, explain not just what to do differently, but why it's better
+
+### TypeScript Development Standards
+- **Always provide explicit typing**: Use proper types instead of `any` - be specific about data structures
+- **Use proper type guards**: Implement type checking with `if`/`throw` validation instead of `unknown` casting
+- **Use double-quotes for strings**: Except when using template literals with `${}`
+- **String construction**: Use template literals OR `Array.join()` instead of string concatenation
+  * Preferred: `"The hour is ${hour}"` or `["The", "hour", "is", hour].join(" ")`
+  * Avoid: `"The hour is " + hour`
+- **Avoid non-null assertion (`!`)**: Use explicit type checking with `if`/`throw` validation instead, except when TypeScript is being overly strict about known-safe operations
+- **Use `Maybe<T>` type**: For optional values instead of `T | undefined` (available globally)
+- **Array.includes() override**: Available globally - can check any value against typed arrays without type errors
+- **Co-locate types**: Keep TypeScript types/interfaces with implementation code in same .ts file
+- **Global types only**: Use .d.ts files only for global/ambient types and third-party library configurations
 
 ## Flexibility
 
