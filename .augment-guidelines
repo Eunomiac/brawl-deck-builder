@@ -122,13 +122,15 @@ Use available tools proactively and purposefully:
 
 ### Testing and Validation
 - **Jest framework**: Use Jest for unit testing, component testing, and coverage reporting
+- **Test commands**: Use `test:ci` for CI/CD, `test:ci-keep` for local verification, `test:watch` for development
+- **Coverage thresholds**: Set realistic coverage goals (currently 20%) that can be gradually increased
+- **SonarQube integration**: Jest generates LCOV coverage and XML test reports for SonarQube analysis
 - **Test-driven development**: Suggest writing or updating tests after making code changes
 - **Coverage goals**: Maintain proper test coverage and help identify untested code paths
 - **Test types**: Include unit tests, integration tests, and snapshot tests for components
 - **Encourage testing**: Always suggest running tests to verify changes work correctly
 - **Debug assistance**: Help debug test failures and improve code quality through testing
 - **Test execution timing**: When running tests, wait for user confirmation that tests have completed before checking terminal output - terminals may auto-close or show stale results
-- **Test commands**: Use `npm run test:ci-keep` for manual review (keeps terminal open with pause), `npm run test:ci` for CI/CD, `npm run test:watch` for development
 
 ### User Learning Goals
 - Emphasize industry best practices and standards
