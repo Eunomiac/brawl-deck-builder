@@ -1,0 +1,241 @@
+// MTG Brawl Deck Builder - SCSS Mixins
+@use 'sass:math';
+@use 'sass:color';
+@use 'variables' as *;
+
+// Responsive breakpoints
+@mixin mobile {
+  @media (max-width: #{$breakpoint-sm - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: #{$breakpoint-sm}) and (max-width: #{$breakpoint-md - 1px}) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$breakpoint-md}) {
+    @content;
+  }
+}
+
+@mixin large-desktop {
+  @media (min-width: #{$breakpoint-lg}) {
+    @content;
+  }
+}
+
+@mixin xl-desktop {
+  @media (min-width: #{$breakpoint-xl}) {
+    @content;
+  }
+}
+
+// Flexbox utilities
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin flex-column-center {
+  @include flex-column;
+  align-items: center;
+  justify-content: center;
+}
+
+// Card styling (for MTG cards and UI cards)
+@mixin card-base {
+  background-color: $primary-color;
+  border: 1px solid $secondary-color;
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-sm;
+  transition: all 0.2s ease;
+}
+
+@mixin card-hover {
+  &:hover {
+    box-shadow: $shadow-md;
+    transform: translateY(-2px);
+  }
+}
+
+@mixin card-interactive {
+  @include card-base;
+  @include card-hover;
+  cursor: pointer;
+}
+
+// MTG mana cost styling
+@mixin mana-symbol($size: 20px) {
+  width: $size;
+  height: $size;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: math.div($size, 1.5);
+  font-weight: bold;
+  margin: 0 2px;
+}
+
+// Button variants
+@mixin button-base {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  border-radius: $border-radius-md;
+  padding: $spacing-sm $spacing-md;
+  font-size: $font-size-base;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-xs;
+
+  &:focus {
+    outline: 2px solid $accent-color;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+@mixin button-primary {
+  @include button-base;
+  background-color: $accent-color;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: color.adjust($accent-color, $lightness: 10%);
+  }
+}
+
+@mixin button-secondary {
+  @include button-base;
+  background-color: $secondary-color;
+  color: $text-color;
+  border: 1px solid $accent-color;
+
+  &:hover:not(:disabled) {
+    background-color: $accent-color;
+    color: white;
+  }
+}
+
+@mixin button-ghost {
+  @include button-base;
+  background-color: transparent;
+  color: $accent-color;
+  border: 1px solid $accent-color;
+
+  &:hover:not(:disabled) {
+    background-color: $accent-color;
+    color: white;
+  }
+}
+
+// Form elements
+@mixin input-base {
+  font-family: inherit;
+  font-size: $font-size-base;
+  border: 1px solid $secondary-color;
+  border-radius: $border-radius-sm;
+  padding: $spacing-sm;
+  background-color: $primary-color;
+  color: $text-color;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: $accent-color;
+    box-shadow: 0 0 0 2px rgba($accent-color, 0.2);
+  }
+
+  &::placeholder {
+    color: $text-secondary;
+  }
+}
+
+// Scrollbar styling
+@mixin custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $primary-color;
+    border-radius: $border-radius-sm;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $secondary-color;
+    border-radius: $border-radius-sm;
+
+    &:hover {
+      background: $accent-color;
+    }
+  }
+}
+
+// Loading animation
+@mixin loading-spinner($size: 20px) {
+  width: $size;
+  height: $size;
+  border: 2px solid $secondary-color;
+  border-top: 2px solid $accent-color;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Truncate text
+@mixin text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin text-truncate-lines($lines: 2) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Visually hidden (for accessibility)
+@mixin visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}

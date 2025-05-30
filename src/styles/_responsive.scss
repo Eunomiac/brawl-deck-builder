@@ -1,0 +1,269 @@
+// MTG Brawl Deck Builder - Responsive Design System
+@use 'variables' as *;
+@use 'mixins' as *;
+
+// Container system
+.container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 $spacing-md;
+
+  @include tablet {
+    padding: 0 $spacing-lg;
+  }
+
+  @include desktop {
+    max-width: $breakpoint-lg;
+    padding: 0 $spacing-xl;
+  }
+
+  @include large-desktop {
+    max-width: $breakpoint-xl;
+  }
+}
+
+.container-fluid {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 $spacing-md;
+
+  @include tablet {
+    padding: 0 $spacing-lg;
+  }
+
+  @include desktop {
+    padding: 0 $spacing-xl;
+  }
+}
+
+// Grid system
+.grid {
+  display: grid;
+  gap: $spacing-md;
+
+  &.grid-cols-1 { grid-template-columns: 1fr; }
+  &.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+  &.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+  &.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+  &.grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+  &.grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+
+  // Responsive grid columns
+  @include mobile {
+    &.grid-cols-2,
+    &.grid-cols-3,
+    &.grid-cols-4,
+    &.grid-cols-5,
+    &.grid-cols-6 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @include tablet {
+    &.grid-cols-3,
+    &.grid-cols-4,
+    &.grid-cols-5,
+    &.grid-cols-6 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @include desktop {
+    &.grid-cols-5,
+    &.grid-cols-6 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @include large-desktop {
+    &.grid-cols-6 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+}
+
+// Gap utilities
+.gap-xs { gap: $spacing-xs; }
+.gap-sm { gap: $spacing-sm; }
+.gap-md { gap: $spacing-md; }
+.gap-lg { gap: $spacing-lg; }
+.gap-xl { gap: $spacing-xl; }
+.gap-xxl { gap: $spacing-xxl; }
+
+// Responsive visibility
+.show-mobile {
+  @include tablet {
+    display: none !important;
+  }
+}
+
+.hide-mobile {
+  @include mobile {
+    display: none !important;
+  }
+}
+
+.show-tablet {
+  @include mobile {
+    display: none !important;
+  }
+  
+  @include desktop {
+    display: none !important;
+  }
+}
+
+.hide-tablet {
+  @include tablet {
+    display: none !important;
+  }
+}
+
+.show-desktop {
+  @include mobile {
+    display: none !important;
+  }
+  
+  @include tablet {
+    display: none !important;
+  }
+}
+
+.hide-desktop {
+  @include desktop {
+    display: none !important;
+  }
+}
+
+// Responsive text alignment
+.text-center-mobile {
+  @include mobile {
+    text-align: center;
+  }
+}
+
+.text-left-desktop {
+  @include desktop {
+    text-align: left;
+  }
+}
+
+// Responsive spacing
+@include mobile {
+  .m-mobile-0 { margin: 0; }
+  .m-mobile-xs { margin: $spacing-xs; }
+  .m-mobile-sm { margin: $spacing-sm; }
+  .m-mobile-md { margin: $spacing-md; }
+  
+  .p-mobile-0 { padding: 0; }
+  .p-mobile-xs { padding: $spacing-xs; }
+  .p-mobile-sm { padding: $spacing-sm; }
+  .p-mobile-md { padding: $spacing-md; }
+}
+
+@include tablet {
+  .m-tablet-0 { margin: 0; }
+  .m-tablet-xs { margin: $spacing-xs; }
+  .m-tablet-sm { margin: $spacing-sm; }
+  .m-tablet-md { margin: $spacing-md; }
+  .m-tablet-lg { margin: $spacing-lg; }
+  
+  .p-tablet-0 { padding: 0; }
+  .p-tablet-xs { padding: $spacing-xs; }
+  .p-tablet-sm { padding: $spacing-sm; }
+  .p-tablet-md { padding: $spacing-md; }
+  .p-tablet-lg { padding: $spacing-lg; }
+}
+
+@include desktop {
+  .m-desktop-0 { margin: 0; }
+  .m-desktop-xs { margin: $spacing-xs; }
+  .m-desktop-sm { margin: $spacing-sm; }
+  .m-desktop-md { margin: $spacing-md; }
+  .m-desktop-lg { margin: $spacing-lg; }
+  .m-desktop-xl { margin: $spacing-xl; }
+  
+  .p-desktop-0 { padding: 0; }
+  .p-desktop-xs { padding: $spacing-xs; }
+  .p-desktop-sm { padding: $spacing-sm; }
+  .p-desktop-md { padding: $spacing-md; }
+  .p-desktop-lg { padding: $spacing-lg; }
+  .p-desktop-xl { padding: $spacing-xl; }
+}
+
+// Responsive flexbox
+@include mobile {
+  .flex-mobile-col { flex-direction: column; }
+  .flex-mobile-row { flex-direction: row; }
+  .items-mobile-center { align-items: center; }
+  .justify-mobile-center { justify-content: center; }
+}
+
+@include tablet {
+  .flex-tablet-col { flex-direction: column; }
+  .flex-tablet-row { flex-direction: row; }
+  .items-tablet-center { align-items: center; }
+  .justify-tablet-center { justify-content: center; }
+}
+
+@include desktop {
+  .flex-desktop-col { flex-direction: column; }
+  .flex-desktop-row { flex-direction: row; }
+  .items-desktop-center { align-items: center; }
+  .justify-desktop-center { justify-content: center; }
+}
+
+// Card grid for MTG cards
+.card-grid {
+  display: grid;
+  gap: $spacing-md;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+
+  @include mobile {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: $spacing-sm;
+  }
+
+  @include tablet {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+
+  @include large-desktop {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: $spacing-lg;
+  }
+}
+
+// Deck builder layout
+.deck-builder-layout {
+  display: grid;
+  gap: $spacing-lg;
+  grid-template-columns: 1fr;
+
+  @include tablet {
+    grid-template-columns: 1fr 300px;
+  }
+
+  @include desktop {
+    grid-template-columns: 1fr 350px;
+  }
+
+  @include large-desktop {
+    grid-template-columns: 1fr 400px;
+  }
+}
+
+// Search layout
+.search-layout {
+  display: grid;
+  gap: $spacing-md;
+  grid-template-columns: 1fr;
+
+  @include tablet {
+    grid-template-columns: 250px 1fr;
+  }
+
+  @include desktop {
+    grid-template-columns: 300px 1fr;
+  }
+}
