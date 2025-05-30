@@ -101,13 +101,17 @@ Use available tools proactively and purposefully:
 - **Restart only when necessary**: Only restart dev server when required for configuration changes or troubleshooting
 
 ### Conversation Transitions & Continuity
-- **Always start new conversations by checking Linear**: Query current project status, priorities, and next tasks
-- **Verify development environment**: Confirm dev server is running at `http://localhost:5173/`
-- **Check recent commits**: Review latest GitHub commits to understand current code state
-- **Reference specific Linear issues**: Use issue numbers (e.g., MTGBDB-29) for clear task context
+
+**When user says "continue project" or similar, automatically perform these steps:**
+1. **Check Linear**: Query current project status, priorities, and identify next task
+2. **Verify dev environment**: Confirm dev server is running at `http://localhost:5173/`
+3. **Check recent commits**: Review latest GitHub commits to understand current code state
+4. **Proceed with specific task**: Reference Linear issue numbers (e.g., MTGBDB-29) and begin work
+
+**General continuity practices:**
 - **Before ending conversations**: Commit all changes, update Linear with progress, note next priority clearly
 - **Maintain persistent state**: Use Linear as source of truth, keep dev server running, update documentation
-- **Seamless handoffs**: Provide specific next steps rather than general "continue project" instructions
+- **Provide specific context**: Always reference specific Linear issues rather than general "continue project" language
 
 ### Testing and Validation
 - **Jest framework**: Use Jest for unit testing, component testing, and coverage reporting
