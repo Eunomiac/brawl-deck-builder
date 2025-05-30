@@ -1,0 +1,8 @@
+// MTG Brawl Deck Builder - Main Stylesheet
+// Import order: Variables -> Globals -> Components
+
+@use 'variables' as *;
+@use 'globals';
+
+// Component styles
+@use 'components/app';

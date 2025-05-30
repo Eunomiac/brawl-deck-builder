@@ -1,0 +1,41 @@
+// MTG Brawl Deck Builder - App Component Styles
+@use '../variables' as *;
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background-color: $primary-color;
+  padding: $spacing-lg $spacing-xl;
+  border-bottom: 1px solid $secondary-color;
+  text-align: center;
+
+  h1 {
+    color: $accent-color;
+    margin-bottom: $spacing-sm;
+  }
+
+  p {
+    color: $text-secondary;
+    margin-bottom: 0;
+  }
+}
+
+.app-main {
+  flex: 1;
+  padding: $spacing-xl;
+}
+
+.app-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+
+  p {
+    color: $text-secondary;
+    font-size: $font-size-lg;
+  }
+}
