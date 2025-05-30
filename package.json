@@ -14,7 +14,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:ci": "jest --coverage --watchAll=false --passWithNoTests"
+    "test:ci": "jest --coverage --watchAll=false --passWithNoTests",
+    "test:ci-keep": "jest --coverage --watchAll=false --passWithNoTests && pause"
   },
   "dependencies": {
     "gsap": "^3.13.0",

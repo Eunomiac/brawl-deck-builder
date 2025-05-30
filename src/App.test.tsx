@@ -1,5 +1,4 @@
-/// <reference types="@testing-library/jest-dom" />
-import { render, screen } from '@testing-library/react';
+import { render, screen } from './test/test-utils';
 import { describe, it, expect } from '@jest/globals';
 import App from './App';
 
@@ -35,7 +34,7 @@ describe('App Component', () => {
     // Check for the three main feature cards
     expect(screen.getByText(/Styling System/i)).toBeInTheDocument();
     expect(screen.getByText(/Performance/i)).toBeInTheDocument();
-    expect(screen.getByText(/Responsive/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Responsive/i })).toBeInTheDocument();
   });
 
   it('renders the MTG font integration section', () => {

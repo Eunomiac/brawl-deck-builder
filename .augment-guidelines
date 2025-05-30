@@ -84,6 +84,13 @@ Use available tools proactively and purposefully:
 4. **Adapt if needed**: If the first attempt fails, try alternative approaches
 5. **Escalate when stuck**: Ask for user guidance if autonomous resolution isn't working
 
+### Root Cause Analysis Before Workarounds
+- **Always check for missing dependencies/packages** before creating manual workarounds
+- **Question the need for manual solutions** - if a popular library combo requires custom fixes, investigate deeper
+- **Verify standard configurations** exist before assuming complex setup is needed
+- **When debugging fails**: Ask user for guidance rather than implementing patches that might mask issues
+- **Red flags**: Manual type definitions, custom mocks for standard libraries, bypassing established patterns
+
 ### When Requirements Are Unclear
 - Ask specific questions about ambiguous requirements
 - Propose concrete alternatives when multiple interpretations are possible
@@ -120,6 +127,8 @@ Use available tools proactively and purposefully:
 - **Test types**: Include unit tests, integration tests, and snapshot tests for components
 - **Encourage testing**: Always suggest running tests to verify changes work correctly
 - **Debug assistance**: Help debug test failures and improve code quality through testing
+- **Test execution timing**: When running tests, wait for user confirmation that tests have completed before checking terminal output - terminals may auto-close or show stale results
+- **Test commands**: Use `npm run test:ci-keep` for manual review (keeps terminal open with pause), `npm run test:ci` for CI/CD, `npm run test:watch` for development
 
 ### User Learning Goals
 - Emphasize industry best practices and standards

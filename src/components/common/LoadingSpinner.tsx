@@ -17,24 +17,18 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   const { enableAnimations, isInitialized } = useGSAPContext();
   const spinnerRef = useLoadingAnimation(true);
 
-  const sizeClasses = {
-    sm: "16px",
-    md: "24px",
-    lg: "32px",
-  };
-
   // Always show animation - use GSAP if available and enabled, otherwise CSS fallback
   const useGSAPAnimation = isInitialized && enableAnimations;
 
+  // Build CSS classes for size variants
+  const sizeClass = size !== 'md' ? `loading-spinner-${size}` : '';
+  const spinnerClasses = `border-2 border-secondary border-t-accent rounded-full loading-spinner ${sizeClass} ${className}`.trim();
+
   return (
-    <div className={`flex items-center justify-center ${className}`}>
+    <div className="flex items-center justify-center">
       <div
         ref={useGSAPAnimation ? (spinnerRef as React.RefObject<HTMLDivElement>) : null}
-        className={`border-2 border-secondary border-t-accent rounded-full loading-spinner`}
-        style={{
-          width: sizeClasses[size],
-          height: sizeClasses[size],
-        }}
+        className={spinnerClasses}
         aria-label={label}
         role="status"
       />

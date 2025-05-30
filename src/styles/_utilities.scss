@@ -224,6 +224,7 @@
 
 // Loading spinner
 .loading-spinner { @include loading-spinner; }
+.loading-spinner-sm { @include loading-spinner(16px); }
 .loading-spinner-lg { @include loading-spinner(32px); }
 
 // Card utilities

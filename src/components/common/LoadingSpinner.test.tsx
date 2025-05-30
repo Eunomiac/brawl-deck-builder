@@ -1,11 +1,11 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '../../test/test-utils';
 import { describe, it, expect } from '@jest/globals';
 import { LoadingSpinner } from './LoadingSpinner';
 
 describe('LoadingSpinner Component', () => {
   it('renders with default props', () => {
     render(<LoadingSpinner />);
-    
+
     const spinner = screen.getByRole('status');
     expect(spinner).toBeInTheDocument();
     expect(spinner).toHaveClass('loading-spinner');
@@ -14,7 +14,7 @@ describe('LoadingSpinner Component', () => {
   it('applies custom className', () => {
     const customClass = 'my-custom-spinner';
     render(<LoadingSpinner className={customClass} />);
-    
+
     const spinner = screen.getByRole('status');
     expect(spinner).toHaveClass('loading-spinner', customClass);
   });
@@ -37,14 +37,14 @@ describe('LoadingSpinner Component', () => {
 
   it('has proper accessibility attributes', () => {
     render(<LoadingSpinner />);
-    
+
     const spinner = screen.getByRole('status');
     expect(spinner).toHaveAttribute('aria-label', 'Loading...');
   });
 
   it('combines size and custom className correctly', () => {
     render(<LoadingSpinner size="lg" className="custom-class" />);
-    
+
     const spinner = screen.getByRole('status');
     expect(spinner).toHaveClass('loading-spinner-lg', 'custom-class');
   });
