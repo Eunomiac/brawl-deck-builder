@@ -35,6 +35,7 @@ export default {
   // Coverage configuration
   collectCoverage: true,
   coverageDirectory: 'coverage',
+  coverageProvider: 'v8',
   coverageReporters: ['text', 'lcov', 'html', 'json', 'json-summary'],
 
   // Coverage collection patterns
@@ -47,6 +48,7 @@ export default {
     '!src/**/__tests__/**',
     '!src/**/*.test.{ts,tsx}',
     '!src/**/*.spec.{ts,tsx}',
+    '!src/test/**',
   ],
 
   // Coverage thresholds - Set to realistic levels for current development stage

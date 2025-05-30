@@ -43,9 +43,11 @@ const mockGsap = {
 };
 
 // Export both named and default exports to handle different import styles
-export const gsap = mockGsap;
-export const Draggable = mockDraggable;
-export default mockGsap;
+module.exports = {
+  gsap: mockGsap,
+  Draggable: mockDraggable,
+  default: mockGsap,
+};
 
 // Also support ES6 imports
 module.exports.gsap = mockGsap;
