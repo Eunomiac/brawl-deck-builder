@@ -35,7 +35,7 @@ export default {
   // Coverage configuration
   collectCoverage: true,
   coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov', 'html', 'json'],
+  coverageReporters: ['text', 'lcov', 'html', 'json', 'json-summary'],
 
   // Coverage collection patterns
   collectCoverageFrom: [
@@ -58,6 +58,9 @@ export default {
       statements: 70,
     },
   },
+
+  // Test results reporter for SonarQube
+  testResultsProcessor: 'jest-sonar-reporter',
 
   // ESM support
   preset: 'ts-jest/presets/default-esm',

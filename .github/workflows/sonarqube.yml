@@ -27,8 +27,7 @@ jobs:
       run: npm ci
 
     - name: Run tests with coverage
-      run: npm run test:coverage
-      continue-on-error: true  # Don't fail if tests aren't set up yet
+      run: npm run test:ci
 
     - name: SonarQube Scan
       uses: SonarSource/sonarqube-scan-action@v5.0.0

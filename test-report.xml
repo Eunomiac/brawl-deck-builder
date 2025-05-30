@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testExecutions version="1">
+  <file path="D:\Projects\.CODING\[VSC Workspace] MTG Brawl Deck Builder\src\components\common\LoadingSpinner.test.tsx">
+    <testCase name="LoadingSpinner Component renders with default props" duration="77"/>
+    <testCase name="LoadingSpinner Component applies custom className" duration="8"/>
+    <testCase name="LoadingSpinner Component applies size classes correctly" duration="14"/>
+    <testCase name="LoadingSpinner Component has proper accessibility attributes" duration="7"/>
+    <testCase name="LoadingSpinner Component combines size and custom className correctly" duration="5"/>
+  </file>
+  <file path="D:\Projects\.CODING\[VSC Workspace] MTG Brawl Deck Builder\src\App.test.tsx">
+    <testCase name="App Component renders the main heading" duration="102"/>
+    <testCase name="App Component renders the welcome message" duration="14"/>
+    <testCase name="App Component renders the project description" duration="11"/>
+    <testCase name="App Component renders the feature cards" duration="31"/>
+    <testCase name="App Component renders the MTG font integration section" duration="18"/>
+    <testCase name="App Component renders the GSAP animation section" duration="10"/>
+    <testCase name="App Component renders the ready for development button" duration="41"/>
+    <testCase name="App Component has proper semantic structure" duration="12"/>
+  </file>
+</testExecutions>
