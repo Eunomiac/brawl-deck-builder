@@ -1,0 +1,153 @@
+Run SonarSource/sonarcloud-github-action@master
+Run echo "::warning title=SonarScanner::This action is deprecated and will be removed in a future release. Please use the sonarqube-scan-action action instead. The sonarqube-scan-action is a drop-in replacement for this action."
+Warning: This action is deprecated and will be removed in a future release. Please use the sonarqube-scan-action action instead. The sonarqube-scan-action is a drop-in replacement for this action.
+Run SonarSource/sonarqube-scan-action@v5.0.0
+Run ${GITHUB_ACTION_PATH}/scripts/sanity-checks.sh
+Run actions/cache@v4
+
+Cache not found for input keys: sonar-scanner-cli-7.0.2.4839-Linux-X64
+Run ${GITHUB_ACTION_PATH}/scripts/install-sonar-scanner-cli.sh
++ mkdir -p /home/runner/work/_temp/sonarscanner
++ cd /home/runner/work/_temp/sonarscanner
++ SCANNER_FILE_NAME=sonar-scanner-cli-7.0.2.4839-linux-x64.zip
++ SCANNER_URI=https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-7.0.2.4839-linux-x64.zip
++ command -v wget
++ wget --no-verbose --user-agent=sonarqube-scan-action https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-7.0.2.4839-linux-x64.zip
+2025-05-30 08:26:30 URL:https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-7.0.2.4839-linux-x64.zip [57688416/57688416] -> "sonar-scanner-cli-7.0.2.4839-linux-x64.zip" [1]
++ unzip -q -o sonar-scanner-cli-7.0.2.4839-linux-x64.zip
++ SCANNER_UNZIP_FOLDER=sonar-scanner-7.0.2.4839-linux-x64
++ SCANNER_LOCAL_FOLDER=/home/runner/work/_temp/sonar-scanner-cli-7.0.2.4839-Linux-X64
++ '[' -d /home/runner/work/_temp/sonar-scanner-cli-7.0.2.4839-Linux-X64 ']'
++ mv -f sonar-scanner-7.0.2.4839-linux-x64 /home/runner/work/_temp/sonar-scanner-cli-7.0.2.4839-Linux-X64
+Run echo "${RUNNER_TEMP}/sonar-scanner-cli-7.0.2.4839-Linux-X64/bin" >> $GITHUB_PATH
+Run ${GITHUB_ACTION_PATH}/scripts/run-sonar-scanner-cli.sh
++ sonar-scanner
+08:26:32.260 INFO  Scanner configuration file: /home/runner/work/_temp/sonar-scanner-cli-7.0.2.4839-Linux-X64/conf/sonar-scanner.properties
+08:26:32.263 INFO  Project root configuration file: /home/runner/work/brawl-deck-builder/brawl-deck-builder/sonar-project.properties
+08:26:32.276 INFO  SonarScanner CLI 7.0.2.4839
+08:26:32.277 INFO  Java 17.0.13 Eclipse Adoptium (64-bit)
+08:26:32.278 INFO  Linux 6.11.0-1014-azure amd64
+08:26:32.307 INFO  User cache: /home/runner/.sonar/cache
+08:26:32.915 INFO  JRE provisioning: os[linux], arch[x86_64]
+08:26:36.493 INFO  Communicating with SonarQube Cloud
+08:26:36.774 INFO  Starting SonarScanner Engine...
+08:26:36.775 INFO  Java 17.0.11 Eclipse Adoptium (64-bit)
+08:26:37.659 INFO  Load global settings
+08:26:38.320 INFO  Load global settings (done) | time=662ms
+08:26:38.323 INFO  Server id: 1BD809FA-AWHW8ct9-T_TB3XqouNu
+08:26:38.478 INFO  Loading required plugins
+08:26:38.494 INFO  Load plugins index
+08:26:38.641 INFO  Load plugins index (done) | time=150ms
+08:26:38.641 INFO  Load/download plugins
+08:26:39.435 INFO  Load/download plugins (done) | time=793ms
+08:26:39.790 INFO  Found an active CI vendor: 'Github Actions'
+08:26:39.796 INFO  Load project settings for component key: 'Eunomiac_brawl-deck-builder'
+08:26:40.172 INFO  Load project settings for component key: 'Eunomiac_brawl-deck-builder' (done) | time=377ms
+08:26:40.177 INFO  Process project properties
+08:26:40.185 INFO  Project key: Eunomiac_brawl-deck-builder
+08:26:40.185 INFO  Base dir: /home/runner/work/brawl-deck-builder/brawl-deck-builder
+08:26:40.186 INFO  Working dir: /home/runner/work/brawl-deck-builder/brawl-deck-builder/.scannerwork
+08:26:40.189 INFO  Load project branches
+08:26:40.394 INFO  Load project branches (done) | time=205ms
+08:26:40.396 INFO  Check ALM binding of project 'Eunomiac_brawl-deck-builder'
+08:26:40.541 INFO  Detected project binding: BOUND
+08:26:40.541 INFO  Check ALM binding of project 'Eunomiac_brawl-deck-builder' (done) | time=145ms
+08:26:40.542 INFO  Load project pull requests
+08:26:40.683 INFO  Load project pull requests (done) | time=141ms
+08:26:40.685 INFO  Load branch configuration
+08:26:40.686 INFO  Github event: push
+08:26:40.689 INFO  Auto-configuring branch master
+08:26:40.689 INFO  Load branch configuration (done) | time=4ms
+08:26:40.694 INFO  Load quality profiles
+08:26:41.135 INFO  Load quality profiles (done) | time=440ms
+08:26:41.139 INFO  Load active rules
+08:26:49.275 INFO  Load active rules (done) | time=8137ms
+08:26:49.442 INFO  Organization key: eunomiac
+08:26:49.443 INFO  Branch name: master, type: long-lived
+08:26:49.458 INFO  Preprocessing files...
+08:26:49.594 INFO  2 languages detected in 30 preprocessed files (done) | time=133ms
+08:26:49.594 INFO  34 files ignored because of inclusion/exclusion patterns
+08:26:49.595 INFO  0 files ignored because of scm ignore settings
+08:26:49.616 INFO  Loading plugins for detected languages
+08:26:49.616 INFO  Load/download plugins
+08:26:50.849 INFO  Load/download plugins (done) | time=1235ms
+08:26:51.112 INFO  Load project repositories
+08:26:51.350 INFO  Load project repositories (done) | time=239ms
+08:26:51.355 INFO  Indexing files...
+08:26:51.356 INFO  Project configuration:
+08:26:51.356 INFO    Excluded sources: **/build-wrapper-dump.json, **/node_modules/**, **/dist/**, **/build/**, **/coverage/**, **/*.d.ts, **/public/**, **/*.test.ts, **/*.test.tsx, **/*.spec.ts, **/*.spec.tsx
+08:26:51.356 INFO    Included tests: **/*.test.ts, **/*.test.tsx, **/*.spec.ts, **/*.spec.tsx
+08:26:51.356 INFO    Excluded sources for coverage: **/*.test.ts, **/*.test.tsx, **/*.spec.ts, **/*.spec.tsx, **/vite.config.ts, **/main.tsx, **/*.d.ts
+08:26:51.406 INFO  17 files indexed (done) | time=51ms
+08:26:51.412 INFO  Quality profile for css: Sonar way
+08:26:51.412 INFO  Quality profile for ts: VSC Core
+08:26:51.413 INFO  ------------- Run sensors on module MTG Brawl Deck Builder
+08:26:51.447 INFO  Load metrics repository
+08:26:51.589 INFO  Load metrics repository (done) | time=143ms
+08:26:51.592 INFO  Sensor cache enabled
+08:26:51.705 INFO  Load sensor cache
+08:26:52.663 INFO  Load sensor cache (404) | time=958ms
+08:26:53.045 INFO  Sensor JaCoCo XML Report Importer [jacoco]
+08:26:53.046 INFO  'sonar.coverage.jacoco.xmlReportPaths' is not defined. Using default locations: target/site/jacoco/jacoco.xml,target/site/jacoco-it/jacoco.xml,build/reports/jacoco/test/jacocoTestReport.xml
+08:26:53.048 INFO  No report imported, no coverage information will be imported by JaCoCo XML Report Importer
+08:26:53.049 INFO  Sensor JaCoCo XML Report Importer [jacoco] (done) | time=2ms
+08:26:53.049 INFO  Sensor Java Config Sensor [iac]
+08:26:53.065 INFO  0 source files to be analyzed
+08:26:53.070 INFO  0/0 source files have been analyzed
+08:26:53.070 INFO  Sensor Java Config Sensor [iac] (done) | time=24ms
+08:26:53.071 INFO  Sensor JavaScript/TypeScript analysis [javascript]
+08:26:53.202 INFO  Detected os: Linux arch: amd64 alpine: false. Platform: LINUX_X64
+08:26:53.204 INFO  Deploy location /home/runner/.sonar/js/node-runtime, tagetRuntime: /home/runner/.sonar/js/node-runtime/node,  version: /home/runner/.sonar/js/node-runtime/version.txt
+08:26:56.070 INFO  Using embedded Node.js runtime.
+08:26:56.070 INFO  Using Node.js executable: '/home/runner/.sonar/js/node-runtime/node'.
+08:26:57.443 INFO  Memory configuration: OS (15995 MB), Node.js (4144 MB).
+08:26:59.306 INFO  Found 1 tsconfig.json file(s): [/home/runner/work/brawl-deck-builder/brawl-deck-builder/tsconfig.json]
+08:26:59.307 INFO  Creating TypeScript program
+08:26:59.307 INFO  TypeScript configuration file /home/runner/work/brawl-deck-builder/brawl-deck-builder/tsconfig.json
+08:26:59.308 INFO  8 source files to be analyzed
+08:26:59.334 INFO  Starting analysis with current program
+08:26:59.335 INFO  Analyzed 0 file(s) with current program
+08:26:59.337 INFO  Creating TypeScript program
+08:26:59.338 INFO  TypeScript configuration file /home/runner/work/brawl-deck-builder/brawl-deck-builder/tsconfig.app.json
+08:26:59.928 INFO  Starting analysis with current program
+08:27:01.971 INFO  Analyzed 8 file(s) with current program
+08:27:01.975 INFO  Creating TypeScript program
+08:27:01.976 INFO  TypeScript configuration file /home/runner/work/brawl-deck-builder/brawl-deck-builder/tsconfig.node.json
+08:27:02.300 INFO  Starting analysis with current program
+08:27:02.301 INFO  Analyzed 0 file(s) with current program
+08:27:02.312 INFO  8/8 source files have been analyzed
+08:27:02.313 INFO  Hit the cache for 0 out of 8
+08:27:02.314 INFO  Miss the cache for 8 out of 8: ANALYSIS_MODE_INELIGIBLE [8/8]
+08:27:02.314 INFO  Sensor JavaScript/TypeScript analysis [javascript] (done) | time=9244ms
+08:27:02.314 INFO  Sensor CSS Rules [javascript]
+08:27:02.318 INFO  8 source files to be analyzed
+08:27:02.457 INFO  8/8 source files have been analyzed
+08:27:02.457 INFO  Hit the cache for 0 out of 0
+08:27:02.457 INFO  Miss the cache for 0 out of 0
+08:27:02.457 INFO  Sensor CSS Rules [javascript] (done) | time=143ms
+08:27:02.457 INFO  Sensor JavaScript/TypeScript Coverage [javascript]
+08:27:02.458 INFO  Merging coverage reports from sonar.javascript.lcov.reportPaths and sonar.typescript.lcov.reportPaths.
+08:27:02.527 INFO  No LCOV files were found using coverage/lcov.info
+08:27:02.527 WARN  No coverage information will be saved because all LCOV files cannot be found.
+08:27:02.528 INFO  Sensor JavaScript/TypeScript Coverage [javascript] (done) | time=70ms
+08:27:02.528 INFO  Sensor CSS Metrics [javascript]
+08:27:02.603 INFO  Sensor CSS Metrics [javascript] (done) | time=75ms
+08:27:02.605 INFO  Sensor IaC Docker Sensor [iac]
+08:27:02.675 INFO  0 source files to be analyzed
+08:27:02.677 INFO  0/0 source files have been analyzed
+08:27:02.677 INFO  Sensor IaC Docker Sensor [iac] (done) | time=74ms
+08:27:02.677 INFO  Sensor Serverless configuration file sensor [security]
+08:27:02.677 INFO  0 Serverless function entries were found in the project
+08:27:02.679 INFO  0 Serverless function handlers were kept as entrypoints
+08:27:02.679 INFO  Sensor Serverless configuration file sensor [security] (done) | time=2ms
+08:27:02.679 INFO  Sensor AWS SAM template file sensor [security]
+08:27:02.679 INFO  Sensor AWS SAM template file sensor [security] (done) | time=1ms
+08:27:02.680 INFO  Sensor AWS SAM Inline template file sensor [security]
+08:27:02.680 INFO  Sensor AWS SAM Inline template file sensor [security] (done) | time=1ms
+08:27:02.681 INFO  Sensor Generic Test Executions Report
+08:27:02.682 INFO  Parsing /home/runner/work/brawl-deck-builder/brawl-deck-builder/coverage/test-report.xml
+08:27:02.690 INFO  Time spent writing ucfgs 43ms
+08:27:02.774 ERROR Error during parsing of generic test execution report '/home/runner/work/brawl-deck-builder/brawl-deck-builder/coverage/test-report.xml'. Look at the SonarQube documentation to know the expected XML format.
+08:27:03.105 INFO  EXECUTION FAILURE
+08:27:03.106 INFO  Total time: 30.848s
+Error: Process completed with exit code 3.
