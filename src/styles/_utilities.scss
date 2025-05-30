@@ -261,9 +261,30 @@
   display: inline-flex;
   align-items: center;
   gap: 2px;
+  vertical-align: middle;
 
   .ms {
     font-size: 1.2em;
+  }
+}
+
+// Loyalty display
+.ms[class*=loyalty] {
+  letter-spacing: 1px;
+  font-size: 2em;
+
+  &::before {
+    text-shadow:
+      1px 1px 0px rgba(255, 255, 255, 0.4),
+      -1px 1px 0px rgba(255, 255, 255, 0.4),
+      1px -1px 0px rgba(255, 255, 255, 0.4),
+      -1px -1px 0px rgba(255, 255, 255, 0.4);
+  }
+
+  &::after {
+    font-weight: 1000;
+    font-size: 0.55em;
+    line-height: 2em;
   }
 }
 

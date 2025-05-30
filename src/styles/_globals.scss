@@ -22,6 +22,11 @@ body {
   background-color: $background-color;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  // Better text wrapping by default
+  hyphens: auto;
+  hyphenate-limit-chars: 6 3 3;
+  text-wrap: balance;
 }
 
 // Typography

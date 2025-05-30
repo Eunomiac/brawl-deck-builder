@@ -68,9 +68,9 @@ function App() {
                       <i className="ms ms-rg ms-cost ms-shadow"></i>
                       <i className="ms ms-gw ms-cost ms-shadow"></i>
                       <i className="ms ms-tap ms-cost ms-shadow"></i>
-                      <i className="ms ms-loyalty-up ms-loyalty-3"></i>
-                      <i className="ms ms-loyalty-down ms-loyalty-4"></i>
                     </div>
+                    <i className="ms ms-loyalty-up ms-loyalty-3"></i>
+                    <i className="ms ms-loyalty-down ms-loyalty-4"></i>
                     <p className="text-sm text-secondary">
                       Complete mana symbol library with hybrid, loyalty, and special symbols
                     </p>
