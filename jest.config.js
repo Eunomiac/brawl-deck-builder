@@ -49,9 +49,13 @@ export default {
     '!src/**/*.test.{ts,tsx}',
     '!src/**/*.spec.{ts,tsx}',
     '!src/test/**',
+    // GSAP integration files excluded due to complex library interactions
+    // requiring integration testing rather than unit testing
+    '!src/shared/hooks/useGSAP.ts',
+    '!src/shared/contexts/GSAPContext.tsx',
   ],
 
-  // Coverage thresholds - Set to realistic levels for current development stage
+  // Coverage thresholds - 80% for new code, 20% global for existing code
   coverageThreshold: {
     global: {
       branches: 20,
@@ -59,6 +63,8 @@ export default {
       lines: 20,
       statements: 20,
     },
+    // Note: Jest doesn't support "new code" thresholds like SonarQube
+    // SonarQube will enforce 80% on new code via sonar-project.properties
   },
 
   // Test results reporter for SonarQube

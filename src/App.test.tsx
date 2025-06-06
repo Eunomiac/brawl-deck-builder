@@ -1,6 +1,6 @@
 import { render, screen } from './test/test-utils';
 import { describe, it, expect } from '@jest/globals';
-import App from './App';
+import App from './app/App';
 
 describe('App Component', () => {
   it('renders the main heading', () => {

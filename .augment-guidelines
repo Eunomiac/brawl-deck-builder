@@ -63,6 +63,7 @@ Use available tools proactively and purposefully:
 - **Address the X/Y Problem**: If the user is asking for a specific solution that seems like a workaround, explore the underlying problem they're trying to solve
 - **Fill knowledge gaps**: Proactively identify when the user might not know about better approaches, tools, or patterns that would serve them better
 - **Teach through alternatives**: When suggesting different approaches, explain the trade-offs and learning opportunities
+- **Focus management**: If user appears to be getting distracted by side-issues or tangents while there's an active task in progress, gently redirect attention back to the main objective. User acknowledges being scatterbrained and wants help staying focused.
 
 ### Be Thorough but Practical
 - Provide sufficient detail to understand the solution
@@ -110,7 +111,14 @@ Use available tools proactively and purposefully:
 ### Conversation Transitions & Continuity
 
 **When user says "continue project" or similar, automatically perform these steps:**
-1. **Check Linear**: Query current project status, priorities, and identify next task
+
+
+1. **Check & Validate Linear**: Query current project status, priorities, and identify next task. The AI has **proactive responsibility** for maintaining Linear project hygiene:
+  A - **Ensure actionable tasks exist**: There should be at least one task marked "in progress". If none exist, identify the most logical next task from available candidates and update it to "in progress" after user confirmation.
+  B - **Resolve priority conflicts**: If multiple tasks are "in progress", engage the user to determine priority and update Linear accordingly.
+  C - **Recognize planning gaps**: Before proceeding with any task, evaluate whether it's sufficiently detailed for implementation. Issues with vague descriptions, broad scope, or unclear requirements should trigger a planning conversation.
+  D - **Take initiative on breakdown**: When high-level issues lack actionable sub-issues, proactively propose a breakdown structure to the user. Don't wait to be asked - it's the AI's responsibility to identify when more planning is needed.
+  E - **Maintain project structure**: Update Linear throughout the work session - mark completed sub-issues, update progress, and ensure the project state accurately reflects current reality.
 2. **Verify dev environment**: Confirm dev server is running at `http://localhost:5173/`
 3. **Check recent commits**: Review latest GitHub commits to understand current code state
 4. **Proceed with specific task**: Reference Linear issue numbers (e.g., MTGBDB-29) and begin work
@@ -121,9 +129,10 @@ Use available tools proactively and purposefully:
 - **Provide specific context**: Always reference specific Linear issues rather than general "continue project" language
 
 ### Testing and Validation
+- **📋 Comprehensive Testing Strategy**: Detailed testing decisions, coverage exclusions, and rationale documented in `docs/TESTING_STRATEGY.md` - **ALWAYS REFERENCE THIS DOCUMENT** for testing-related decisions
 - **Jest framework**: Use Jest for unit testing, component testing, and coverage reporting
 - **Test commands**: Use `test:ci` for CI/CD, `test:ci-keep` for local verification, `test:watch` for development
-- **Coverage thresholds**: Set realistic coverage goals (currently 20%) that can be gradually increased
+- **Coverage thresholds**: Coverage goals on new code is 80%.
 - **SonarQube integration**: Jest generates LCOV coverage and XML test reports for SonarQube analysis
 - **Test-driven development**: Suggest writing or updating tests after making code changes
 - **Coverage goals**: Maintain proper test coverage and help identify untested code paths
@@ -131,6 +140,7 @@ Use available tools proactively and purposefully:
 - **Encourage testing**: Always suggest running tests to verify changes work correctly
 - **Debug assistance**: Help debug test failures and improve code quality through testing
 - **Test execution timing**: When running tests, wait for user confirmation that tests have completed before checking terminal output - terminals may auto-close or show stale results
+- **GSAP Testing Strategy**: GSAP animation components and hooks are excluded from unit test coverage requirements due to complexity of mocking GSAP environments. These should be tested through integration testing, visual regression tests, and end-to-end tests instead. Unit testing GSAP would require extensive mocking that doesn't provide meaningful coverage of actual functionality.
 
 ### Code Quality and Issue Detection
 - **Diagnostics command**: Use `diagnostics` tool to programmatically check for all IDE-reported issues including SonarQube, TypeScript, ESLint, and accessibility problems
@@ -157,7 +167,7 @@ Use available tools proactively and purposefully:
 - **String construction**: Use template literals OR `Array.join()` instead of string concatenation
   * Preferred: `"The hour is ${hour}"` or `["The", "hour", "is", hour].join(" ")`
   * Avoid: `"The hour is " + hour`
-- **Avoid non-null assertion (`!`)**: Use explicit type checking with `if`/`throw` validation instead, except when TypeScript is being overly strict about known-safe operations
+- **Use `assert`, `assertDefined`, `assertType`, `assertInstanceOf`**: Fav
 - **Use `Maybe<T>` type**: For optional values instead of `T | undefined` (available globally)
 - **Array.includes() override**: Available globally - can check any value against typed arrays without type errors
 - **Co-locate types**: Keep TypeScript types/interfaces with implementation code in same .ts file
@@ -188,6 +198,12 @@ The goal is to provide excellent coding assistance that helps create maintainabl
 - **Task tracking**: Use Linear to understand project priorities, current phase, and specific requirements
 - **Issue creation**: Create Linear issues for new features, bugs, or technical debt identified during development
 - **Progress updates**: Update Linear issues as work progresses and mark completed when finished
+- **📛📛 THE AI HAS PROACTIVE RESPONSIBILITY FOR MAINTAINING LINEAR HYGEINE 📛📛**:
+  A - **Ensure actionable tasks exist**: There should be at least one task marked "in progress". If none exist, identify the most logical next task from available candidates and update it to "in progress" after user confirmation.
+  B - **Resolve priority conflicts**: If multiple tasks are "in progress", engage the user to determine priority and update Linear accordingly.
+  C - **Recognize planning gaps**: Before proceeding with any task, evaluate whether it's sufficiently detailed for implementation. Issues with vague descriptions, broad scope, or unclear requirements should trigger a planning conversation.
+  D - **Take initiative on breakdown**: When high-level issues lack actionable sub-issues, proactively propose a breakdown structure to the user. Don't wait to be asked - it's the AI's responsibility to identify when more planning is needed.
+  E - **Maintain project structure**: Proactively update Linear throughout the work session - mark completed sub-issues, update progress, and ensure the project state accurately reflects current reality.
 
 ## Supabase Backend Services
 - **Database management**: Use for database schema management, authentication, and API endpoints
@@ -218,4 +234,6 @@ The MTG Brawl Deck Builder is a private web application for MTG Arena Brawl form
 
 ## Project Resources
 - **Project Charter**: Original project charter available in `docs\PROJECT_CHARTER.md` for background context
+- **Testing Strategy**: Comprehensive testing decisions and coverage exclusions in `docs\TESTING_STRATEGY.md` - **REFERENCE BEFORE MAKING TESTING DECISIONS**
+- **MTG Fonts Guide**: Font integration and usage guidelines in `docs\MTG_FONTS_GUIDE.md`
 - **Current Status**: All current project state, priorities, and future direction managed in Linear

@@ -2,14 +2,14 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { type ReactElement } from 'react';
 import { render, type RenderOptions } from '@testing-library/react';
-import { GSAPProvider } from '../contexts/GSAPContext';
 
 // Custom render function that includes providers
+// Note: GSAP components are excluded from unit testing and tested via integration tests
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return (
-    <GSAPProvider>
+    <div data-testid="test-wrapper">
       {children}
-    </GSAPProvider>
+    </div>
   );
 };
 

@@ -33,8 +33,12 @@ This document outlines our comprehensive testing strategy for the MTG Brawl Deck
 ### Animation Integration Code
 
 **Files Excluded:**
-- `src/hooks/useGSAP.ts`
-- `src/contexts/GSAPContext.tsx`
+- `src/hooks/useGSAP.ts` (legacy location)
+- `src/contexts/GSAPContext.tsx` (legacy location)
+- `src/shared/hooks/useGSAP.ts` (current location)
+- `src/shared/contexts/GSAPContext.tsx` (current location)
+- `src/shared/utils/animations.ts` (GSAP animation utilities)
+- `src/shared/components/animations/*` (GSAP-dependent components)
 
 **Rationale:**
 These modules contain complex third-party library integrations (GSAP) that require:
@@ -53,7 +57,7 @@ These modules contain complex third-party library integrations (GSAP) that requi
 
 ```properties
 # Coverage exclusions for animation integration code
-sonar.coverage.exclusions=**/hooks/useGSAP.ts,**/contexts/GSAPContext.tsx
+sonar.coverage.exclusions=**/hooks/useGSAP.ts,**/contexts/GSAPContext.tsx,**/shared/hooks/useGSAP.ts,**/shared/contexts/GSAPContext.tsx,**/shared/utils/animations.ts
 
 # Test file exclusions (standard)
 sonar.test.exclusions=**/*.test.ts,**/*.test.tsx,**/*.spec.ts,**/*.spec.tsx
