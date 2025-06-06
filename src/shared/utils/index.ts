@@ -15,9 +15,6 @@ export {
 // Enum Utilities
 export { AnimationDirection } from './enums';
 
-// Assert Utilities
-export { assert, assertDefined, assertType, assertInstanceOf } from './assert';
-
 // TODO: Add other utility categories as they are created
 // export {} from './data';
 // export {} from './validation';

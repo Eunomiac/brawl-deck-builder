@@ -46,7 +46,7 @@ declare global {
   }
 
   /**
-   * Global assert function for runtime assertions and type narrowing
+   * Global assert function using Node's console.assert
    * Throws an error if the condition is false, otherwise narrows the type
    *
    * @param condition - The condition to assert
@@ -58,33 +58,6 @@ declare global {
    * // TypeScript now knows value is string, not string | null
    */
   function assert(condition: unknown, message?: string): asserts condition;
-
-  /**
-   * Assert that a value is defined (not null or undefined)
-   * @param value - The value to check
-   * @param name - Optional name for better error messages
-   */
-  function assertDefined<T>(value: T, name?: string): asserts value is NonNullable<T>;
-
-  /**
-   * Assert that a value is of a specific type
-   * @param value - The value to check
-   * @param type - The expected type as a string
-   * @param name - Optional name for better error messages
-   */
-  function assertType<T>(value: unknown, type: string, name?: string): asserts value is T;
-
-  /**
-   * Assert that a value is an instance of a specific class
-   * @param value - The value to check
-   * @param constructor - The constructor function to check against
-   * @param name - Optional name for better error messages
-   */
-  function assertInstanceOf<T>(
-    value: unknown,
-    constructor: new (...args: unknown[]) => T,
-    name?: string
-  ): asserts value is T;
 }
 
 // This file needs to be a module to work with declare global
