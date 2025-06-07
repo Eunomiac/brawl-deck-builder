@@ -4,6 +4,7 @@
     "jsx": "react-jsx",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "module": "ESNext",
     "moduleResolution": "node",
     "verbatimModuleSyntax": false,
     "allowImportingTsExtensions": false,

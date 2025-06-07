@@ -37,14 +37,14 @@ export class CardNameNormalizer {
     // Handle specific character replacements FIRST (before NFD decomposition)
     // Most characters get simple one-for-one swaps to their natural Western equivalent
     normalized = normalized
-      .replace(/ä/gi, 'a')                // ä → a
-      .replace(/ö/gi, 'o')                // ö → o
-      .replace(/ü/gi, 'u')                // ü → u
-      .replace(/ç/gi, 'c')                // ç → c
-      .replace(/ñ/gi, 'n')                // ñ → n
+      .replace(/ä/g, 'a').replace(/Ä/g, 'A')  // ä → a, Ä → A
+      .replace(/ö/g, 'o').replace(/Ö/g, 'O')  // ö → o, Ö → O
+      .replace(/ü/g, 'u').replace(/Ü/g, 'U')  // ü → u, Ü → U
+      .replace(/ç/g, 'c').replace(/Ç/g, 'C')  // ç → c, Ç → C
+      .replace(/ñ/g, 'n').replace(/Ñ/g, 'N')  // ñ → n, Ñ → N
       // Special cases that need multi-character replacements
-      .replace(/æ/gi, 'ae')               // æ → ae (ligature)
-      .replace(/œ/gi, 'oe')               // œ → oe (ligature)
+      .replace(/æ/g, 'ae').replace(/Æ/g, 'Ae') // æ → ae, Æ → Ae (ligature)
+      .replace(/œ/g, 'oe').replace(/Œ/g, 'Oe') // œ → oe, Œ → Oe (ligature)
       .replace(/ß/g, 'ss');               // ß → ss (German eszett)
 
     // THEN handle remaining accented characters via NFD decomposition
@@ -94,14 +94,14 @@ export class CardNameNormalizer {
     // Handle specific character replacements FIRST (before NFD decomposition)
     // Most characters get simple one-for-one swaps to their natural Western equivalent
     normalized = normalized
-      .replace(/ä/gi, 'a')                // ä → a
-      .replace(/ö/gi, 'o')                // ö → o
-      .replace(/ü/gi, 'u')                // ü → u
-      .replace(/ç/gi, 'c')                // ç → c
-      .replace(/ñ/gi, 'n')                // ñ → n
+      .replace(/ä/g, 'a').replace(/Ä/g, 'A')  // ä → a, Ä → A
+      .replace(/ö/g, 'o').replace(/Ö/g, 'O')  // ö → o, Ö → O
+      .replace(/ü/g, 'u').replace(/Ü/g, 'U')  // ü → u, Ü → U
+      .replace(/ç/g, 'c').replace(/Ç/g, 'C')  // ç → c, Ç → C
+      .replace(/ñ/g, 'n').replace(/Ñ/g, 'N')  // ñ → n, Ñ → N
       // Special cases that need multi-character replacements
-      .replace(/æ/gi, 'ae')               // æ → ae (ligature)
-      .replace(/œ/gi, 'oe')               // œ → oe (ligature)
+      .replace(/æ/g, 'ae').replace(/Æ/g, 'Ae') // æ → ae, Æ → Ae (ligature)
+      .replace(/œ/g, 'oe').replace(/Œ/g, 'Oe') // œ → oe, Œ → Oe (ligature)
       .replace(/ß/g, 'ss');               // ß → ss (German eszett)
 
     // THEN handle remaining accented characters via NFD decomposition
@@ -114,9 +114,9 @@ export class CardNameNormalizer {
 
     // Aggressive normalization: Strip all non-alphanumeric except protected separators
     normalized = normalized
-      .replace(/ \/\/ /g, '@@SPLIT@@')     // Protect double-faced card separator
-      .replace(/[^a-z0-9@]/g, '')         // Strip everything except alphanumeric + our marker
-      .replace(/@@SPLIT@@/g, ' // ');     // Restore the separator
+      .replace(/ \/\/ /g, 'ZZZZZ')        // Protect double-faced card separator
+      .replace(/[^a-z0-9Z]/g, '')         // Strip everything except alphanumeric + our marker
+      .replace(/ZZZZZ/g, ' // ');         // Restore the separator
 
     // =================================================================
     // END SEARCH NORMALIZATION TRANSFORMATIONS
