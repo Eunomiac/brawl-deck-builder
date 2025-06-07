@@ -198,6 +198,7 @@ The goal is to provide excellent coding assistance that helps create maintainabl
 - **Task tracking**: Use Linear to understand project priorities, current phase, and specific requirements
 - **Issue creation**: Create Linear issues for new features, bugs, or technical debt identified during development
 - **Progress updates**: Update Linear issues as work progresses and mark completed when finished
+- **Linear Reference**: Use `docs/LINEAR_REFERENCE.md` for workspace UUIDs (team, states, labels, users) to avoid repeated API queries for basic operations
 - **📛📛 THE AI HAS PROACTIVE RESPONSIBILITY FOR MAINTAINING LINEAR HYGEINE 📛📛**:
   A - **Ensure actionable tasks exist**: There should be at least one task marked "in progress". If none exist, identify the most logical next task from available candidates and update it to "in progress" after user confirmation.
   B - **Resolve priority conflicts**: If multiple tasks are "in progress", engage the user to determine priority and update Linear accordingly.
