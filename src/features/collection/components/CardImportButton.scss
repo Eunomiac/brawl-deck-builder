@@ -1,0 +1,170 @@
+// Card Import Button Styles
+@use "../../../styles/variables" as *;
+@use "../../../styles/mixins" as *;
+
+.card-import-button {
+  @include card-base;
+  padding: $spacing-md;
+  max-width: 600px;
+
+  .import-controls {
+    display: flex;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-sm;
+
+    .import-button {
+      @include button-primary;
+      flex: 1;
+      position: relative;
+      transition: all 0.3s ease;
+
+      &.importing {
+        background-color: $secondary-color;
+        cursor: not-allowed;
+
+        &::after {
+          content: "";
+          position: absolute;
+          top: 50%;
+          right: $spacing-sm;
+          width: 16px;
+          height: 16px;
+          margin-top: -8px;
+          border: 2px solid transparent;
+          border-top: 2px solid currentColor;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+      }
+
+      &.update-available {
+        background-color: $warning-color;
+        border-color: darken($warning-color, 10%);
+
+        &:hover:not(:disabled) {
+          background-color: darken($warning-color, 5%);
+        }
+      }
+    }
+
+    .reset-button {
+      @include button-secondary;
+      padding: $spacing-sm $spacing-md;
+    }
+  }
+
+  .import-status {
+    .status-text {
+      font-size: $font-size-sm;
+      color: $text-secondary;
+      margin-bottom: $spacing-xs;
+      line-height: 1.4;
+    }
+
+    .progress-container {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+      margin: $spacing-sm 0;
+
+      .progress-bar {
+        flex: 1;
+        height: 8px;
+        background-color: $background-secondary;
+        border-radius: 4px;
+        overflow: hidden;
+
+        .progress-fill {
+          height: 100%;
+          transition: width 0.3s ease;
+          border-radius: 4px;
+
+          &.bg-blue-500 {
+            background-color: $primary-color;
+          }
+
+          &.bg-yellow-500 {
+            background-color: $warning-color;
+          }
+
+          &.bg-orange-500 {
+            background-color: #f97316;
+          }
+
+          &.bg-green-500 {
+            background-color: $success-color;
+          }
+
+          &.bg-green-600 {
+            background-color: darken($success-color, 10%);
+          }
+
+          &.bg-red-500 {
+            background-color: $error-color;
+          }
+        }
+      }
+
+      .progress-text {
+        font-size: $font-size-xs;
+        color: $text-secondary;
+        min-width: 40px;
+        text-align: right;
+      }
+    }
+
+    .import-details {
+      display: flex;
+      gap: $spacing-md;
+      font-size: $font-size-xs;
+      color: $text-muted;
+      margin-top: $spacing-xs;
+
+      span {
+        &.error-count {
+          color: $error-color;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}
+
+// Animation for loading spinner
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .card-import-button {
+    .import-controls {
+      flex-direction: column;
+
+      .import-button {
+        width: 100%;
+      }
+    }
+
+    .import-details {
+      flex-direction: column;
+      gap: $spacing-xs;
+    }
+  }
+}
+
+// Dark mode support (if implemented)
+@media (prefers-color-scheme: dark) {
+  .card-import-button {
+    .progress-container {
+      .progress-bar {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+}

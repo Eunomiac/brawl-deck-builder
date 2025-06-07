@@ -1,6 +1,7 @@
 // MTG Brawl Deck Builder - Main Application Component
 import {AnimatedCard, DraggableCard, LoadingSpinner, SupabaseStatus} from '../shared/components';
 import {GSAPProvider} from '../shared/contexts/GSAPContext';
+import {CardImportButton} from '../features/collection/components';
 
 function App() {
   return (
@@ -110,6 +111,25 @@ function App() {
                     </DraggableCard>
                   </div>
                 </div>
+              </AnimatedCard>
+
+              <AnimatedCard className="p-lg mb-lg bg-secondary" delay={1.0}>
+                <h3 className="text-lg mb-md card-title">📥 Scryfall Card Import</h3>
+                <p className="text-sm text-secondary mb-md">
+                  Import MTG Arena Brawl-legal cards from Scryfall bulk data
+                </p>
+                <CardImportButton
+                  onImportComplete={(success, cardCount) => {
+                    if (success) {
+                      console.log(`✅ Successfully imported ${cardCount} cards!`);
+                    } else {
+                      console.log("❌ Card import failed");
+                    }
+                  }}
+                  onImportStart={() => {
+                    console.log("🚀 Starting card import...");
+                  }}
+                />
               </AnimatedCard>
 
               <button className="btn-primary">

@@ -196,9 +196,6 @@ export const draggableUtils = {
       },
     };
   },
-
-  // Snap to grid utility
-  snapToGrid: (gridSize = 20) => (value: number) => Math.round(value / gridSize) * gridSize,
 };
 
 // Timeline utilities for complex animations

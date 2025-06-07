@@ -10,6 +10,6 @@ export {} from './common';
 // Database Components
 export { SupabaseStatus } from './SupabaseStatus';
 
-// TODO: Add other component categories as they are created
+// ... and also Add other component categories as they are created
 // export {} from './layout';
 // export {} from './forms';

@@ -1,7 +1,7 @@
 // Shared Utils Barrel Export
 // This file exports all utility functions used across features
 
-// Animation Utilities
+// Animation Utilities (GSAP-dependent, excluded from unit testing)
 export {
   ANIMATION_DURATION,
   EASING,
@@ -15,7 +15,11 @@ export {
 // Enum Utilities
 export { AnimationDirection } from './enums';
 
-// TODO: Add other utility categories as they are created
-// export {} from './data';
-// export {} from './validation';
-// export {} from './format';
+// General Utilities (Pure functions, 100% unit tested)
+export {
+  mathUtils,
+  arrayUtils,
+  stringUtils,
+  objectUtils,
+  validationUtils
+} from './general';

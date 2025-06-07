@@ -13,3 +13,6 @@
 
 // Component styles
 @use 'components/app';
+
+// Feature-specific component styles
+@use '../features/collection/components/CardImportButton';
