@@ -227,28 +227,103 @@ export class ScryfallUtils {
   }
 
   /**
+   * Normalize text by removing special characters and converting to lowercase
+   */
+  static normalizeText(text: string): string {
+    return text
+      .toLowerCase()
+      // Handle specific character replacements first
+      .replace(/æ/g, 'ae')
+      .replace(/œ/g, 'oe')
+      .replace(/ß/g, 'ss')
+      // Then normalize and remove diacritical marks
+      .normalize('NFD') // Decompose accented characters
+      .replace(/[\u0300-\u036f]/g, '') // Remove diacritical marks
+      .replace(/[^a-z0-9\s]/g, ' ') // Replace non-alphanumeric with spaces
+      .replace(/\s+/g, ' ') // Collapse multiple spaces
+      .trim();
+  }
+
+  /**
    * Get all possible names for a card (for search terms)
+   * Handles Alchemy variants, split cards, and special characters
    */
   static getCardSearchTerms(card: ScryfallCard): Array<{ search_term: string; is_primary: boolean }> {
     const terms: Array<{ search_term: string; is_primary: boolean }> = [];
+    const addedTerms = new Set<string>(); // Prevent duplicates
 
-    // Primary name
-    terms.push({ search_term: card.name, is_primary: true });
+    const addTerm = (term: string, isPrimary: boolean = false) => {
+      const normalized = this.normalizeText(term);
+      if (normalized && !addedTerms.has(normalized)) {
+        addedTerms.add(normalized);
+        terms.push({ search_term: normalized, is_primary: isPrimary });
+      }
+    };
 
-    // Handle double-faced cards
-    if (card.card_faces && card.card_faces.length > 0) {
-      // Add individual face names
-      card.card_faces.forEach((face) => {
-        if (face.name !== card.name) {
-          terms.push({ search_term: face.name, is_primary: false });
+    // Primary name (normalized)
+    addTerm(card.name, true);
+
+    // Handle Alchemy variants (A- prefix)
+    if (card.name.startsWith('A-')) {
+      // Add version without A- prefix
+      const withoutPrefix = card.name.substring(2);
+      addTerm(withoutPrefix, false);
+    } else {
+      // Add version with A- prefix (for reverse lookup)
+      addTerm(`A-${card.name}`, false);
+    }
+
+    // Handle split cards (cards with // in name)
+    if (card.name.includes('//')) {
+      const parts = card.name.split('//').map(part => part.trim());
+
+      // Add individual parts
+      parts.forEach(part => {
+        addTerm(part, false);
+
+        // Also add Alchemy variants of each part
+        if (part.startsWith('A-')) {
+          addTerm(part.substring(2), false);
+        } else {
+          addTerm(`A-${part}`, false);
         }
       });
 
-      // Add combined name with " // " separator
-      const combinedName = card.card_faces.map(face => face.name).join(" // ");
-      if (combinedName !== card.name) {
-        terms.push({ search_term: combinedName, is_primary: false });
-      }
+      // Add various separator combinations
+      const separators = [' ', ' / ', ' // ', ' /// '];
+      separators.forEach(sep => {
+        addTerm(parts.join(sep), false);
+
+        // Mixed Alchemy variants
+        const alchemyParts = parts.map(part => part.startsWith('A-') ? part : `A-${part}`);
+        addTerm(alchemyParts.join(sep), false);
+
+        const nonAlchemyParts = parts.map(part => part.startsWith('A-') ? part.substring(2) : part);
+        addTerm(nonAlchemyParts.join(sep), false);
+      });
+    }
+
+    // Handle double-faced cards (card_faces)
+    if (card.card_faces && card.card_faces.length > 0) {
+      card.card_faces.forEach((face) => {
+        if (face.name !== card.name) {
+          addTerm(face.name, false);
+
+          // Alchemy variants for faces
+          if (face.name.startsWith('A-')) {
+            addTerm(face.name.substring(2), false);
+          } else {
+            addTerm(`A-${face.name}`, false);
+          }
+        }
+      });
+
+      // Combined face names with various separators
+      const faceNames = card.card_faces.map(face => face.name);
+      const separators = [' ', ' / ', ' // ', ' /// '];
+      separators.forEach(sep => {
+        addTerm(faceNames.join(sep), false);
+      });
     }
 
     return terms;

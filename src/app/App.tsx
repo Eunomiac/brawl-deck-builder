@@ -1,9 +1,15 @@
 // MTG Brawl Deck Builder - Main Application Component
-import {AnimatedCard, DraggableCard, LoadingSpinner, SupabaseStatus} from '../shared/components';
+import { useState } from 'react';
+import {AnimatedCard, DraggableCard, LoadingSpinner, SupabaseStatus, Navigation} from '../shared/components';
 import {GSAPProvider} from '../shared/contexts/GSAPContext';
 import {CardImportButton} from '../features/collection/components';
+import {CardSearch} from '../features/search/components';
+
+type TabType = 'front' | 'cardpool';
 
 function App() {
+  const [activeTab, setActiveTab] = useState<TabType>('front');
+
   return (
     <GSAPProvider>
       <div className="app">
@@ -16,8 +22,18 @@ function App() {
           </div>
         </header>
 
+        <Navigation
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          tabs={[
+            { id: 'front', label: 'Front' },
+            { id: 'cardpool', label: 'Cardpool' }
+          ]}
+        />
+
         <main className="app-main">
           <div className="container">
+            {activeTab === 'front' && (
             <AnimatedCard className="app-content p-xl text-center" delay={0.2}>
               <h2 className="text-accent mb-md">Welcome to your MTG Brawl Deck Builder!</h2>
               <p className="text-secondary mb-lg">
@@ -129,6 +145,13 @@ function App() {
                 Ready for Development
               </button>
             </AnimatedCard>
+            )}
+
+            {activeTab === 'cardpool' && (
+              <div className="cardpool-content">
+                <CardSearch />
+              </div>
+            )}
           </div>
         </main>
       </div>

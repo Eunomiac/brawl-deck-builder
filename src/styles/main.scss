@@ -14,5 +14,8 @@
 // Component styles
 @use 'components/app';
 
+// Shared component styles
+@use '../shared/components/Navigation/navigation';
+
 // Feature-specific component styles
 @use '../features/collection/components/CardImportButton';
