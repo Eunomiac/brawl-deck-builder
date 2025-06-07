@@ -234,7 +234,9 @@ describe("CardProcessor", () => {
 
       expect(result).toEqual({
         oracle_id: "test-oracle-id",
+        original_name: "Lightning Bolt",
         name: "Lightning Bolt",
+        search_key: "lightningbolt",
         mana_cost: "{R}",
         cmc: 1,
         type_line: "Instant",
@@ -253,6 +255,12 @@ describe("CardProcessor", () => {
           png: "https://example.com/png.png",
           art_crop: "https://example.com/art.jpg",
           border_crop: "https://example.com/border.jpg"
+        },
+        back_image_uris: undefined,
+        display_hints: {
+          preferredOrientation: "portrait",
+          hasBackFace: false,
+          meldPartner: null,
         },
         scryfall_uri: "https://scryfall.com/card/test",
         search_terms: [

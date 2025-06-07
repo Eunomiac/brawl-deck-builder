@@ -176,53 +176,6 @@ export class CardSearchService {
   }
 
   /**
-   * Generate search term variations for exact matching (used with quoted searches)
-   */
-  private static generateSearchVariations(normalizedTerm: string): string[] {
-    const variations = new Set<string>();
-
-    // Add the original term
-    variations.add(normalizedTerm);
-
-    // Handle Alchemy variants
-    if (normalizedTerm.startsWith('a ')) {
-      // Remove 'a ' prefix (normalized 'A-')
-      variations.add(normalizedTerm.substring(2));
-    } else {
-      // Add 'a ' prefix
-      variations.add(`a ${normalizedTerm}`);
-    }
-
-    // Handle split card separator variations (for exact matching)
-    // This handles cases like "Dusk / Dawn" vs "Dusk // Dawn"
-    if (normalizedTerm.includes(' ')) {
-      const words = normalizedTerm.split(' ').filter(word => word.length > 0);
-
-      // For split cards, try different separator patterns
-      if (words.length >= 2) {
-        // Join with single space (normalized from any separator)
-        variations.add(words.join(' '));
-
-        // Also try without spaces (for cards that might be stored differently)
-        variations.add(words.join(''));
-
-        // Alchemy variants for the whole phrase
-        const alchemyWords = words.map(word =>
-          word.startsWith('a ') ? word : `a ${word}`
-        );
-        variations.add(alchemyWords.join(' '));
-
-        const nonAlchemyWords = words.map(word =>
-          word.startsWith('a ') ? word.substring(2) : word
-        );
-        variations.add(nonAlchemyWords.join(' '));
-      }
-    }
-
-    return Array.from(variations).filter(term => term.length > 0);
-  }
-
-  /**
    * Search for exact card name matches
    */
   static async findExactCard(cardName: string): Promise<DatabaseCard | null> {

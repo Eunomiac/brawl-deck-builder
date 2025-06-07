@@ -26,8 +26,9 @@ export class CardNameNormalizer {
     // =================================================================
     // Normalize for readability but keep human-friendly
 
-    // Remove Alchemy prefixes (A-Lightning Bolt → Lightning Bolt)
-    normalized = normalized.replace(/^A-/, '');
+    // Remove Alchemy prefixes from both halves of double-faced cards
+    // (A-Front Name // A-Back Name → Front Name // Back Name)
+    normalized = normalized.replace(/^A-/, '').replace(/ \/\/ A-/g, ' // ');
 
     // Standardize slash separators for split cards
     // (Fire / Ice, Fire///Ice, Fire // Ice → Fire // Ice)
@@ -82,8 +83,9 @@ export class CardNameNormalizer {
     // =================================================================
     // Aggressive normalization for search matching
 
-    // Remove Alchemy prefixes (A-Lightning Bolt → Lightning Bolt)
-    normalized = normalized.replace(/^A-/, '');
+    // Remove Alchemy prefixes from both halves of double-faced cards
+    // (A-Front Name // A-Back Name → Front Name // Back Name)
+    normalized = normalized.replace(/^A-/, '').replace(/ \/\/ A-/g, ' // ');
 
     // Standardize slash separators for split cards
     // (Fire / Ice, Fire///Ice, Fire // Ice → Fire // Ice)
