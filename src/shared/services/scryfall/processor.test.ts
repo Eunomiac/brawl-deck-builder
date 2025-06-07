@@ -138,6 +138,64 @@ describe("CardProcessor", () => {
       expect(result).toHaveLength(1);
       expect(result[0].name).toBe("Single Card");
     });
+
+    it("should prefer Arena-legal version over non-Arena version", () => {
+      const cards: ScryfallCard[] = [
+        {
+          oracle_id: "oracle-1",
+          name: "Test Card",
+          set: "c20",
+          // Mock non-Arena legal card
+        } as ScryfallCard,
+        {
+          oracle_id: "oracle-1", // Same oracle_id
+          name: "Test Card",
+          set: "akr",
+          // Mock Arena legal card
+        } as ScryfallCard,
+      ];
+
+      // Clear the default mock and set specific behavior
+      mockScryfallUtils.isBrawlLegalOnArena.mockReset();
+      mockScryfallUtils.isBrawlLegalOnArena.mockImplementation((card: ScryfallCard) => {
+        // c20 is not Arena-legal, akr is Arena-legal
+        return card.set === "akr";
+      });
+
+      const result = CardProcessor.deduplicateCards(cards);
+
+      expect(result).toHaveLength(1);
+      expect(result[0].set).toBe("akr"); // Should prefer Arena-legal version
+    });
+
+    it("should keep existing Arena-legal card when new card is not Arena-legal", () => {
+      const cards: ScryfallCard[] = [
+        {
+          oracle_id: "oracle-1",
+          name: "Test Card",
+          set: "akr",
+          // Mock Arena legal card
+        } as ScryfallCard,
+        {
+          oracle_id: "oracle-1", // Same oracle_id
+          name: "Test Card",
+          set: "c20",
+          // Mock non-Arena legal card
+        } as ScryfallCard,
+      ];
+
+      // Clear the default mock and set specific behavior
+      mockScryfallUtils.isBrawlLegalOnArena.mockReset();
+      mockScryfallUtils.isBrawlLegalOnArena.mockImplementation((card: ScryfallCard) => {
+        // akr is Arena-legal, c20 is not Arena-legal
+        return card.set === "akr";
+      });
+
+      const result = CardProcessor.deduplicateCards(cards);
+
+      expect(result).toHaveLength(1);
+      expect(result[0].set).toBe("akr"); // Should keep existing Arena-legal version
+    });
   });
 
   describe("processCard", () => {
@@ -314,10 +372,10 @@ describe("CardProcessor", () => {
       const onProgress = jest.fn();
       const result = await CardProcessor.processCardData(cards as ScryfallCard[], onProgress);
 
-      // Should filter, deduplicate (keeping newer set), and process
+      // Should deduplicate first, then filter, and process
       expect(result).toHaveLength(2); // Deduplicated
-      expect(onProgress).toHaveBeenCalledWith("Filtering cards", 0, 3);
-      expect(onProgress).toHaveBeenCalledWith("Deduplicating cards", 1, 3);
+      expect(onProgress).toHaveBeenCalledWith("Deduplicating cards", 0, 3);
+      expect(onProgress).toHaveBeenCalledWith("Filtering cards", 1, 3);
       expect(onProgress).toHaveBeenCalledWith("Processing cards", 2, 3);
       expect(onProgress).toHaveBeenCalledWith("Complete", 3, 3);
     });

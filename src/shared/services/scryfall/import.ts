@@ -101,7 +101,7 @@ export class CardImportService {
       // Step 2: Download bulk data
       updateProgress(CardImportStatus.DownloadingData, "Downloading card data from Scryfall...");
 
-      rawCards = await ScryfallAPI.downloadOracleCards((loaded, total) => {
+      rawCards = await ScryfallAPI.downloadDefaultCards((loaded: number, total: number) => {
         const percentage = Math.round((loaded / total) * 100);
         updateProgress(
           CardImportStatus.DownloadingData,

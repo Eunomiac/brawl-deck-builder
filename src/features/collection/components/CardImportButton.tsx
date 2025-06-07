@@ -6,13 +6,15 @@ import { useCardImport } from "../../../shared/hooks";
 
 interface CardImportButtonProps {
   className?: string;
-  onImportComplete?: (success: boolean, cardCount: number) => void;
+  onImportSuccess?: (cardCount: number) => void;
+  onImportError?: (error?: string) => void;
   onImportStart?: () => void;
 }
 
 export function CardImportButton({
   className = "",
-  onImportComplete,
+  onImportSuccess,
+  onImportError,
   onImportStart
 }: Readonly<CardImportButtonProps>) {
   const {
@@ -59,14 +61,16 @@ export function CardImportButton({
   // Handle import completion
   useEffect(() => {
     if (result && !isImporting) {
-      if (onImportComplete) {
-        onImportComplete(result.success, result.totalSaved);
+      if (result.success) {
+        onImportSuccess?.(result.totalSaved);
+      } else {
+        onImportError?.(result.errors?.[0] ?? "Unknown error");
       }
 
       // Refresh status after import
       refreshStatus();
     }
-  }, [result, isImporting, onImportComplete, refreshStatus]);
+  }, [result, isImporting, onImportSuccess, onImportError, refreshStatus]);
 
   const handleImportClick = async () => {
     try {

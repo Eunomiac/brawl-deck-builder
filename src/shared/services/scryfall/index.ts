@@ -12,3 +12,6 @@ export { CardDatabaseService } from "./database";
 
 // Main Import Service
 export { CardImportService } from "./import";
+
+// Debug Utilities
+export { ScryfallDebugger } from "./debug";

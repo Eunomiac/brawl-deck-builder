@@ -82,6 +82,7 @@ export default {
     '!src/shared/services/scryfall/api.ts', // Network API calls, streaming responses
     '!src/shared/services/scryfall/database.ts', // Database operations, batch processing
     '!src/shared/services/scryfall/import.ts', // Orchestration service, coordinates multiple systems
+    '!src/shared/services/scryfall/debug.ts', // Debug utilities - not production code
     '!src/features/collection/components/CardImportButton.tsx', // UI component with real-time progress
     '!src/shared/hooks/useCardImport.ts', // React hook with complex state management
   ],

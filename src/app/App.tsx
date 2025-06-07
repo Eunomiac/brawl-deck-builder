@@ -24,17 +24,11 @@ function App() {
                 Project setup complete with React, TypeScript, Vite, SCSS architecture, and GSAP animations.
               </p>
 
-              <div className="grid grid-cols-4 gap-md mb-lg">
+              <div className="grid grid-cols-3 gap-md mb-lg">
                 <AnimatedCard className="p-md" delay={0.4}>
                   <h3 className="text-lg mb-sm card-title">🎨 Styling System</h3>
                   <p className="text-sm text-secondary">
                     Modern SCSS with mixins, utilities, and responsive design
-                  </p>
-                </AnimatedCard>
-                <AnimatedCard className="p-md" delay={0.5}>
-                  <h3 className="text-lg mb-sm card-title">⚡ Performance</h3>
-                  <p className="text-sm text-secondary">
-                    Optimized build system with path aliases and modern tooling
                   </p>
                 </AnimatedCard>
                 <AnimatedCard className="p-md" delay={0.6}>
@@ -119,12 +113,11 @@ function App() {
                   Import MTG Arena Brawl-legal cards from Scryfall bulk data
                 </p>
                 <CardImportButton
-                  onImportComplete={(success, cardCount) => {
-                    if (success) {
-                      console.log(`✅ Successfully imported ${cardCount} cards!`);
-                    } else {
-                      console.log("❌ Card import failed");
-                    }
+                  onImportSuccess={(cardCount) => {
+                    console.log(`✅ Successfully imported ${cardCount} cards!`);
+                  }}
+                  onImportError={(error) => {
+                    console.log(`❌ Card import failed: ${error ?? "Unknown error"}`);
                   }}
                   onImportStart={() => {
                     console.log("🚀 Starting card import...");

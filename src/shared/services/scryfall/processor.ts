@@ -21,25 +21,48 @@ export class CardProcessor {
   }
 
   /**
-   * Deduplicate cards by oracle_id, keeping the most recent printing
+   * Deduplicate cards by oracle_id, prioritizing Arena-legal versions
+   * This ensures we keep Arena-legal cards even when non-Arena versions exist
    */
   static deduplicateCards(cards: ScryfallCard[]): ScryfallCard[] {
-    console.log(`🔄 Deduplicating ${cards.length} cards by oracle_id...`);
+    console.log(`🔄 Deduplicating ${cards.length} cards by oracle_id (prioritizing Arena-legal versions)...`);
 
     const cardMap = new Map<string, ScryfallCard>();
+    let arenaPreferenceApplied = 0;
 
     for (const card of cards) {
-      const existing = cardMap.get(card.oracle_id);
+      const oracleId = card.oracle_id;
+      const existingCard = cardMap.get(oracleId);
 
-      if (!existing || card.set > existing.set) {
-        // Keep the card from the more recent set (simple heuristic)
-        // In a more sophisticated version, we might prefer certain sets
-        cardMap.set(card.oracle_id, card);
+      if (!existingCard) {
+        // First card with this oracle_id
+        cardMap.set(oracleId, card);
+        continue;
+      }
+
+      // We have a duplicate - choose the better version
+      const currentIsArenaLegal = ScryfallUtils.isBrawlLegalOnArena(card);
+      const existingIsArenaLegal = ScryfallUtils.isBrawlLegalOnArena(existingCard);
+
+      if (currentIsArenaLegal && !existingIsArenaLegal) {
+        // Current card is Arena-legal, existing is not - replace
+        cardMap.set(oracleId, card);
+        arenaPreferenceApplied++;
+      } else if (!currentIsArenaLegal && existingIsArenaLegal) {
+        // Existing card is Arena-legal, current is not - keep existing
+        continue;
+      } else if (card.set > existingCard.set) {
+        // Both are Arena-legal or both are not Arena-legal
+        // Prefer the more recent set (simple heuristic using set code comparison)
+        cardMap.set(oracleId, card);
       }
     }
 
     const deduplicated = Array.from(cardMap.values());
     console.log(`✅ Deduplicated to ${deduplicated.length} unique cards`);
+    if (arenaPreferenceApplied > 0) {
+      console.log(`🎯 Applied Arena preference for ${arenaPreferenceApplied} cards`);
+    }
 
     return deduplicated;
   }
@@ -117,7 +140,8 @@ export class CardProcessor {
   }
 
   /**
-   * Full processing pipeline: filter, deduplicate, and process cards
+   * Full processing pipeline: deduplicate, filter, and process cards
+   * Note: Deduplication happens BEFORE filtering to ensure we get the best version of each card
    */
   static async processCardData(
     cards: ScryfallCard[],
@@ -125,17 +149,17 @@ export class CardProcessor {
   ): Promise<ProcessedCard[]> {
     console.log("🚀 Starting card processing pipeline...");
 
-    // Stage 1: Filter for Brawl-legal Arena cards
-    if (onProgress) onProgress("Filtering cards", 0, 3);
-    const filtered = this.filterBrawlLegalCards(cards);
+    // Stage 1: Deduplicate by oracle_id (prioritizing Arena-legal versions)
+    if (onProgress) onProgress("Deduplicating cards", 0, 3);
+    const deduplicated = this.deduplicateCards(cards);
 
-    // Stage 2: Deduplicate by oracle_id
-    if (onProgress) onProgress("Deduplicating cards", 1, 3);
-    const deduplicated = this.deduplicateCards(filtered);
+    // Stage 2: Filter for Brawl-legal Arena cards
+    if (onProgress) onProgress("Filtering cards", 1, 3);
+    const filtered = this.filterBrawlLegalCards(deduplicated);
 
     // Stage 3: Process into our format
     if (onProgress) onProgress("Processing cards", 2, 3);
-    const processed = this.processCards(deduplicated, (current, total) => {
+    const processed = this.processCards(filtered, (current, total) => {
       if (onProgress) {
         onProgress(`Processing cards (${current}/${total})`, 2, 3);
       }

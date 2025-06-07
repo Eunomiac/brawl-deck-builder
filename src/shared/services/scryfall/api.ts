@@ -36,19 +36,20 @@ export class ScryfallAPI {
   }
 
   /**
-   * Get the Oracle Cards bulk data metadata
-   * This is the main dataset we need for card information
+   * Get the Default Cards bulk data metadata
+   * This includes all printings (including digital-only Arena cards)
+   * unlike oracle_cards which only includes "recognizable" versions
    */
-  static async getOracleCardsBulkData(): Promise<ScryfallBulkData> {
+  static async getDefaultCardsBulkData(): Promise<ScryfallBulkData> {
     const bulkDataList = await this.getBulkDataList();
 
-    const oracleData = bulkDataList.find(
-      (item) => item.type === "oracle_cards"
+    const defaultData = bulkDataList.find(
+      (item) => item.type === "default_cards"
     );
 
-    assert(oracleData, "Oracle cards bulk data not found");
+    assert(defaultData, "Default cards bulk data not found");
 
-    return oracleData;
+    return defaultData;
   }
 
   /**
@@ -117,13 +118,13 @@ export class ScryfallAPI {
   }
 
   /**
-   * Download Oracle Cards bulk data
+   * Download Default Cards bulk data
    * Convenience method that combines metadata fetch and download
    */
-  static async downloadOracleCards(
+  static async downloadDefaultCards(
     onProgress?: (loaded: number, total: number) => void
   ): Promise<ScryfallCard[]> {
-    const bulkData = await this.getOracleCardsBulkData();
+    const bulkData = await this.getDefaultCardsBulkData();
     return this.downloadBulkCardData(bulkData, onProgress);
   }
 
@@ -132,7 +133,7 @@ export class ScryfallAPI {
    */
   static async isBulkDataUpdated(lastUpdate: Date): Promise<boolean> {
     try {
-      const bulkData = await this.getOracleCardsBulkData();
+      const bulkData = await this.getDefaultCardsBulkData();
       const updatedAt = new Date(bulkData.updated_at);
       return updatedAt > lastUpdate;
     } catch (error) {
@@ -152,7 +153,7 @@ export class ScryfallAPI {
     updatedAt: Date;
     downloadUri: string;
   }> {
-    const bulkData = await this.getOracleCardsBulkData();
+    const bulkData = await this.getDefaultCardsBulkData();
 
     return {
       name: bulkData.name,
