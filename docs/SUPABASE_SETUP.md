@@ -19,16 +19,16 @@ Create a `.env.local` file in the project root with:
 
 ```env
 VITE_SUPABASE_URL=https://cvkjluvuaunikkrrunxx.supabase.co
-VITE_SUPABASE_ANON_KEY=your_actual_anon_key_here
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2a2psdXZ1YXVuaWtrcnJ1bnh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg0NjU4MzcsImV4cCI6MjA2NDA0MTgzN30.XKTbl3w9g45AEKH-44-5USZaaOfkib3c-C6RRAxe-rQ
 ```
 
-### Getting the API Keys
+### API Keys Configuration
 
-1. Go to the [Supabase Dashboard](https://supabase.com/dashboard)
-2. Navigate to your project: `mtg-brawl-deck-builder`
-3. Go to Settings → API
-4. Copy the "anon public" key
-5. Replace `your_actual_anon_key_here` in `.env.local`
+✅ **Project URL**: `https://cvkjluvuaunikkrrunxx.supabase.co`
+✅ **Anon Key**: Already configured above
+✅ **Project Status**: Active and ready for development
+
+**For production deployment**, use the same values in your deployment platform (Vercel, Netlify, etc.)
 
 ## Project Structure
 
