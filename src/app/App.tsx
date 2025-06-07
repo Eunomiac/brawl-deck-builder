@@ -1,5 +1,5 @@
 // MTG Brawl Deck Builder - Main Application Component
-import {AnimatedCard, DraggableCard, LoadingSpinner} from '../shared/components/animations';
+import {AnimatedCard, DraggableCard, LoadingSpinner, SupabaseStatus} from '../shared/components';
 import {GSAPProvider} from '../shared/contexts/GSAPContext';
 
 function App() {
@@ -23,7 +23,7 @@ function App() {
                 Project setup complete with React, TypeScript, Vite, SCSS architecture, and GSAP animations.
               </p>
 
-              <div className="grid grid-cols-3 gap-md mb-lg">
+              <div className="grid grid-cols-4 gap-md mb-lg">
                 <AnimatedCard className="p-md" delay={0.4}>
                   <h3 className="text-lg mb-sm card-title">🎨 Styling System</h3>
                   <p className="text-sm text-secondary">
@@ -42,9 +42,12 @@ function App() {
                     Mobile-first design with flexible grid system
                   </p>
                 </AnimatedCard>
+                <AnimatedCard className="p-md" delay={0.7}>
+                  <SupabaseStatus />
+                </AnimatedCard>
               </div>
 
-              <AnimatedCard className="p-lg mb-lg bg-secondary" delay={0.7}>
+              <AnimatedCard className="p-lg mb-lg bg-secondary" delay={0.8}>
                 <h3 className="text-lg mb-md card-title">MTG Font Integration</h3>
                 <div className="grid grid-cols-2 gap-lg">
                   <div>
@@ -88,7 +91,7 @@ function App() {
                 </div>
               </AnimatedCard>
 
-              <AnimatedCard className="p-lg mb-lg bg-primary" delay={0.8}>
+              <AnimatedCard className="p-lg mb-lg bg-primary" delay={0.9}>
                 <h3 className="text-lg mb-md card-title">🎬 GSAP Animation System</h3>
                 <div className="grid grid-cols-2 gap-lg">
                   <div>

@@ -7,6 +7,9 @@ export { AnimatedCard, DraggableCard, LoadingSpinner } from './animations';
 // Common UI Components
 export {} from './common';
 
+// Database Components
+export { SupabaseStatus } from './SupabaseStatus';
+
 // TODO: Add other component categories as they are created
 // export {} from './layout';
 // export {} from './forms';
