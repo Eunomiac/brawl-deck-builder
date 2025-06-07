@@ -16,10 +16,8 @@ export class SupabaseConnection {
 
     try {
       // Try to execute a simple query to test connection
-      const { error } = await supabase
-        .from("information_schema.tables")
-        .select("table_name")
-        .limit(1);
+      // Use auth.getSession() which is always available and lightweight
+      const { error } = await supabase.auth.getSession();
 
       const latency = Date.now() - startTime;
 

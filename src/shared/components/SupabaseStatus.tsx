@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { SupabaseConnection } from "../../services/supabase";
+import { runDatabaseTests } from "../../services/supabase/database-test";
 
 interface SupabaseStatusProps {
   readonly className?: string;
@@ -98,11 +99,24 @@ export function SupabaseStatus({ className = "" }: SupabaseStatusProps) {
       </div>
 
       {/* Project URL */}
-      <div>
+      <div className="mb-sm">
         <h5 className="text-sm font-semibold mb-xs">Project URL</h5>
         <p className="text-xs text-secondary break-all">{connectionStatus.url}</p>
         <p className="text-xs text-secondary">Last checked: {new Date(connectionStatus.timestamp).toLocaleTimeString()}</p>
       </div>
+
+      {/* Database Test Button */}
+      {connection.connected && (
+        <div>
+          <button
+            className="btn-sm btn-secondary text-xs"
+            onClick={() => runDatabaseTests()}
+          >
+            Test Database
+          </button>
+          <p className="text-xs text-secondary mt-xs">Check browser console for results</p>
+        </div>
+      )}
     </div>
   );
 }
