@@ -87,12 +87,12 @@ export class SupabaseConnection {
       warnings.push("VITE_SUPABASE_URL should start with https://");
     }
 
-    if (url && url.includes("your_supabase_project_url")) {
+    if (url?.includes("your_supabase_project_url")) {
       warnings.push("VITE_SUPABASE_URL appears to be a placeholder value");
     }
 
     const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    if (anonKey && anonKey.includes("your_supabase_anon_key")) {
+    if (anonKey?.includes("your_supabase_anon_key")) {
       warnings.push("VITE_SUPABASE_ANON_KEY appears to be a placeholder value");
     }
 
