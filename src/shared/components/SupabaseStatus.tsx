@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { SupabaseConnection } from "../../services/supabase";
 
 interface SupabaseStatusProps {
-  className?: string;
+  readonly className?: string;
 }
 
 export function SupabaseStatus({ className = "" }: SupabaseStatusProps) {
@@ -51,7 +51,7 @@ export function SupabaseStatus({ className = "" }: SupabaseStatusProps) {
   return (
     <div className={`supabase-status ${className}`}>
       <h4 className="text-md mb-sm font-heading">🗄️ Database Status</h4>
-      
+
       {/* Environment Validation */}
       <div className="mb-sm">
         <h5 className="text-sm font-semibold mb-xs">Environment Configuration</h5>
@@ -67,13 +67,13 @@ export function SupabaseStatus({ className = "" }: SupabaseStatusProps) {
             </ul>
           </div>
         )}
-        
+
         {environment.warnings.length > 0 && (
           <div className="mt-xs">
             <p className="text-xs text-warning">⚠️ Warnings:</p>
             <ul className="text-xs text-warning ml-md">
-              {environment.warnings.map((warning, index) => (
-                <li key={index}>• {warning}</li>
+              {environment.warnings.map((warning) => (
+                <li key={warning}>• {warning}</li>
               ))}
             </ul>
           </div>
