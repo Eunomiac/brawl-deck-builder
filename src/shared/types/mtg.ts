@@ -113,7 +113,9 @@ export interface ScryfallBulkData {
 export interface ProcessedCard {
   // Database fields
   oracle_id: string;
+  original_name: string;
   name: string;
+  search_key: string;
   mana_cost?: string;
   cmc: number;
   type_line: string;
@@ -126,6 +128,12 @@ export interface ProcessedCard {
   can_be_companion: boolean;
   companion_restriction?: string;
   image_uris?: Record<string, string | undefined>;
+  back_image_uris?: Record<string, string | undefined>;
+  display_hints: {
+    preferredOrientation: 'portrait' | 'landscape';
+    hasBackFace: boolean;
+    meldPartner: string | null;
+  };
   scryfall_uri: string;
 
   // Search terms for this card

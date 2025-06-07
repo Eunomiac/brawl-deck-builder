@@ -5,31 +5,27 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-}
-
-.app-header {
-  background-color: $primary-color;
-  padding: $spacing-lg $spacing-xl;
-  border-bottom: 1px solid $secondary-color;
-  text-align: center;
-
-  h1 {
-    color: $accent-color;
-    margin-bottom: $spacing-sm;
-  }
-
-  p {
-    color: $text-secondary;
-    margin-bottom: 0;
-  }
+  background: linear-gradient(135deg, $background-color 0%, $background-secondary 50%, $primary-color 100%);
+  color: $text-color;
 }
 
 .app-main {
   flex: 1;
   padding: $spacing-xl;
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 $spacing-lg;
+  }
 }
 
 .app-content {
+  background: rgba($background-color, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba($accent-color, 0.2);
+  box-shadow: $shadow-lg;
   max-width: 1200px;
   margin: 0 auto;
   text-align: center;
@@ -38,4 +34,16 @@
     color: $text-secondary;
     font-size: $font-size-lg;
   }
+}
+
+// Cardpool specific styling
+.cardpool-content {
+  background: rgba($accent-color, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba($accent-color, 0.2);
+  box-shadow: $shadow-lg;
+  padding: $spacing-xl;
+  margin: 0 auto;
+  max-width: 1200px;
 }

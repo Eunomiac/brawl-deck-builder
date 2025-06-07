@@ -43,6 +43,7 @@ export type Database = {
       }
       cards: {
         Row: {
+          back_image_uris: string | null
           can_be_commander: boolean | null
           can_be_companion: boolean | null
           cmc: number | null
@@ -50,18 +51,22 @@ export type Database = {
           colors: string[] | null
           companion_restriction: string | null
           created_at: string | null
+          display_hints: string | null
           id: string
           image_uris: Json | null
           mana_cost: string | null
           name: string
           oracle_id: string
           oracle_text: string | null
+          original_name: string | null
           rarity: string | null
           scryfall_uri: string | null
+          search_key: string | null
           set_code: string | null
           type_line: string | null
         }
         Insert: {
+          back_image_uris?: string | null
           can_be_commander?: boolean | null
           can_be_companion?: boolean | null
           cmc?: number | null
@@ -69,18 +74,22 @@ export type Database = {
           colors?: string[] | null
           companion_restriction?: string | null
           created_at?: string | null
+          display_hints?: string | null
           id?: string
           image_uris?: Json | null
           mana_cost?: string | null
           name: string
           oracle_id: string
           oracle_text?: string | null
+          original_name?: string | null
           rarity?: string | null
           scryfall_uri?: string | null
+          search_key?: string | null
           set_code?: string | null
           type_line?: string | null
         }
         Update: {
+          back_image_uris?: string | null
           can_be_commander?: boolean | null
           can_be_companion?: boolean | null
           cmc?: number | null
@@ -88,14 +97,17 @@ export type Database = {
           colors?: string[] | null
           companion_restriction?: string | null
           created_at?: string | null
+          display_hints?: string | null
           id?: string
           image_uris?: Json | null
           mana_cost?: string | null
           name?: string
           oracle_id?: string
           oracle_text?: string | null
+          original_name?: string | null
           rarity?: string | null
           scryfall_uri?: string | null
+          search_key?: string | null
           set_code?: string | null
           type_line?: string | null
         }
@@ -381,7 +393,7 @@ export type TablesUpdate<
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"] // NOSONAR - Auto-generated Supabase type utility
+    | keyof DefaultSchema["Enums"]
     | { schema: keyof Database },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof Database
@@ -396,13 +408,13 @@ export type Enums<
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"] // NOSONAR - Auto-generated Supabase type utility
+    | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof Database },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof Database
   }
     ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never, // NOSONAR - Auto-generated Supabase type utility
+    : never = never,
 > = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
   ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]

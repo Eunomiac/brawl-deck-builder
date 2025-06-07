@@ -3,6 +3,7 @@
 
 import type { ScryfallCard, ProcessedCard } from "../../types/mtg";
 import { ScryfallUtils } from "./api";
+import { CardNameNormalizer } from "../../utils/cardNameNormalization";
 
 /**
  * Card processor for filtering and transforming Scryfall data
@@ -76,19 +77,47 @@ export class CardProcessor {
     const companionRestriction = ScryfallUtils.extractCompanionRestriction(card);
     const searchTerms = ScryfallUtils.getCardSearchTerms(card);
 
-    // Prepare image URIs for database storage
-    const imageUris = card.image_uris ? {
-      small: card.image_uris.small,
-      normal: card.image_uris.normal,
-      large: card.image_uris.large,
-      png: card.image_uris.png,
-      art_crop: card.image_uris.art_crop,
-      border_crop: card.image_uris.border_crop,
+    // Three-tier name normalization
+    const originalName = card.name;
+    const displayName = CardNameNormalizer.normalizeForDisplay(originalName);
+    const searchKey = CardNameNormalizer.normalizeForSearch(originalName);
+
+    // Handle double-faced card images
+    const frontImageUris = card.image_uris || card.card_faces?.[0]?.image_uris;
+    const backImageUris = card.card_faces?.[1]?.image_uris;
+
+    // Prepare front image URIs for database storage
+    const imageUris = frontImageUris ? {
+      small: frontImageUris.small,
+      normal: frontImageUris.normal,
+      large: frontImageUris.large,
+      png: frontImageUris.png,
+      art_crop: frontImageUris.art_crop,
+      border_crop: frontImageUris.border_crop,
     } : undefined;
+
+    // Prepare back image URIs for database storage
+    const backImageUrisFormatted = backImageUris ? {
+      small: backImageUris.small,
+      normal: backImageUris.normal,
+      large: backImageUris.large,
+      png: backImageUris.png,
+      art_crop: backImageUris.art_crop,
+      border_crop: backImageUris.border_crop,
+    } : undefined;
+
+    // Create display hints for card rendering
+    const displayHints = {
+      preferredOrientation: 'portrait' as const,
+      hasBackFace: !!backImageUris,
+      meldPartner: null, // ... and then Implement meld partner detection
+    };
 
     return {
       oracle_id: card.oracle_id,
-      name: card.name,
+      original_name: originalName,
+      name: displayName,
+      search_key: searchKey,
       mana_cost: card.mana_cost,
       cmc: card.cmc,
       type_line: card.type_line,
@@ -101,6 +130,8 @@ export class CardProcessor {
       can_be_companion: canBeCompanion,
       companion_restriction: companionRestriction,
       image_uris: imageUris,
+      back_image_uris: backImageUrisFormatted,
+      display_hints: displayHints,
       scryfall_uri: card.scryfall_uri,
       search_terms: searchTerms,
     };

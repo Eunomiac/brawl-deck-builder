@@ -19,18 +19,24 @@ export const Navigation: React.FC<NavigationProps> = ({
 }) => {
   return (
     <nav className="navigation">
-      <div className="container">
-        <div className="nav-tabs">
+      <div className="nav-container">
+        <a href="#" className="nav-brand">MTG Brawl Deck Builder</a>
+        <ul className="nav-tabs">
           {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              className={`nav-tab ${activeTab === tab.id ? 'active' : ''}`}
-              onClick={() => onTabChange(tab.id)}
-            >
-              {tab.label}
-            </button>
+            <li key={tab.id} className="nav-tab">
+              <a
+                href="#"
+                className={`nav-link ${activeTab === tab.id ? 'active' : ''}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  onTabChange(tab.id);
+                }}
+              >
+                {tab.label}
+              </a>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </nav>
   );

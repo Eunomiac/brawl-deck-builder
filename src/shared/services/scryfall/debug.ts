@@ -144,7 +144,7 @@ export class ScryfallDebugger {
       const { data, error } = await supabase
         .from("cards")
         .select("*")
-        .ilike("name", `%${searchTerm}%`)
+        .or(`name.ilike.%${searchTerm}%,search_key.ilike.%${searchTerm}%`)
         .order("name")
         .limit(limit);
 

@@ -87,7 +87,9 @@ export class CardDatabaseService {
         // Prepare card data for insertion
         const cardInserts: TablesInsert<"cards">[] = batch.map(card => ({
           oracle_id: card.oracle_id,
+          original_name: card.original_name,
           name: card.name,
+          search_key: card.search_key,
           mana_cost: card.mana_cost,
           cmc: card.cmc,
           type_line: card.type_line,
@@ -99,7 +101,9 @@ export class CardDatabaseService {
           can_be_commander: card.can_be_commander,
           can_be_companion: card.can_be_companion,
           companion_restriction: card.companion_restriction,
-          image_uris: card.image_uris,
+          image_uris: card.image_uris ? JSON.stringify(card.image_uris) : null,
+          back_image_uris: card.back_image_uris ? JSON.stringify(card.back_image_uris) : null,
+          display_hints: JSON.stringify(card.display_hints),
           scryfall_uri: card.scryfall_uri,
         }));
 
@@ -148,7 +152,7 @@ export class CardDatabaseService {
         }
 
         // Small delay to avoid overwhelming the database
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise(resolve => setTimeout(resolve, 250));
 
       } catch (error) {
         const errorMsg = `Batch ${Math.floor(i / batchSize) + 1}: ${error instanceof Error ? error.message : String(error)}`;

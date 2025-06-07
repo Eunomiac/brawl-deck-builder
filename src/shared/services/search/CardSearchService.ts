@@ -3,7 +3,7 @@
 
 import { supabase } from "../../../services/supabase/client";
 import type { Tables } from "../../../services/supabase/types";
-import { ScryfallUtils } from "../scryfall/api";
+import { CardNameNormalizer } from "../../utils/cardNameNormalization";
 
 type DatabaseCard = Tables<"cards">;
 
@@ -53,30 +53,54 @@ export class CardSearchService {
         : searchTerm.trim();
 
       // Normalize the search term
-      const normalizedSearchTerm = ScryfallUtils.normalizeText(cleanSearchTerm);
+      const normalizedSearchTerm = CardNameNormalizer.normalizeForSearch(cleanSearchTerm);
 
-      // For quoted searches, use exact matching with variations
-      // For unquoted searches, be more precise
-      let searchTerms: string[];
+      // Search using normalized search key for consistent matching
 
-      if (isQuotedSearch) {
-        // Quoted search: generate variations but use exact matching
-        searchTerms = this.generateSearchVariations(normalizedSearchTerm);
-      } else {
-        // Unquoted search: try exact match first, then prefix match
-        searchTerms = [normalizedSearchTerm];
-      }
-
-      // Search using the card_search_terms table
+      // Search directly using the search_key field for better performance
       let query = supabase
-        .from("card_search_terms")
+        .from("cards")
         .select(`
-          search_term,
-          is_primary,
-          cards!inner (
+          id,
+          oracle_id,
+          original_name,
+          name,
+          search_key,
+          mana_cost,
+          cmc,
+          type_line,
+          oracle_text,
+          colors,
+          color_identity,
+          rarity,
+          set_code,
+          can_be_commander,
+          can_be_companion,
+          companion_restriction,
+          image_uris,
+          back_image_uris,
+          display_hints,
+          scryfall_uri,
+          created_at
+        `);
+
+      // try exact match first
+      query = query.eq("search_key", normalizedSearchTerm);
+
+      let { data, error, count } = await query
+        .order("name") // Sort by display name
+        .limit(limit);
+
+      // If no exact matches found for unquoted search, try prefix matching
+      if (!isQuotedSearch && !exactMatch && (!data || data.length === 0)) {
+        query = supabase
+          .from("cards")
+          .select(`
             id,
             oracle_id,
+            original_name,
             name,
+            search_key,
             mana_cost,
             cmc,
             type_line,
@@ -89,53 +113,13 @@ export class CardSearchService {
             can_be_companion,
             companion_restriction,
             image_uris,
+            back_image_uris,
+            display_hints,
             scryfall_uri,
             created_at
-          )
-        `);
-
-      if (isQuotedSearch || exactMatch) {
-        // Exact match against any of the search terms
-        query = query.in("search_term", searchTerms);
-      } else {
-        // For unquoted searches, try exact match first
-        const exactConditions = searchTerms.map(term => `search_term.eq.${term}`).join(',');
-        query = query.or(exactConditions);
-      }
-
-      let { data, error, count } = await query
-        .order("is_primary", { ascending: false }) // Primary terms first
-        .limit(limit);
-
-      // If no exact matches found for unquoted search, try prefix matching
-      if (!isQuotedSearch && !exactMatch && (!data || data.length === 0)) {
-        query = supabase
-          .from("card_search_terms")
-          .select(`
-            search_term,
-            is_primary,
-            cards!inner (
-              id,
-              oracle_id,
-              name,
-              mana_cost,
-              cmc,
-              type_line,
-              oracle_text,
-              colors,
-              color_identity,
-              rarity,
-              set_code,
-              can_be_commander,
-              can_be_companion,
-              companion_restriction,
-              image_uris,
-              scryfall_uri,
-              created_at
-            )
           `)
-          .ilike("search_term", `${normalizedSearchTerm}%`) // Prefix match
-          .order("is_primary", { ascending: false })
+          .ilike("search_key", `${normalizedSearchTerm}%`) // Prefix match
+          .order("name")
           .limit(limit);
 
         const prefixResult = await query;
@@ -154,31 +138,22 @@ export class CardSearchService {
         };
       }
 
-      // Extract unique cards (since multiple search terms can match the same card)
-      const uniqueCards = new Map<string, DatabaseCard>();
-
-      data?.forEach((result) => {
-        const card = result.cards as DatabaseCard;
-        if (card && !uniqueCards.has(card.id)) {
-          uniqueCards.set(card.id, card);
-        }
-      });
-
-      const cards = Array.from(uniqueCards.values());
+      // Since we're querying cards directly, no need to extract from nested structure
+      const cards = (data || []) as DatabaseCard[];
 
       // Sort results: exact matches first, then by name
       cards.sort((a, b) => {
-        const aNameNormalized = ScryfallUtils.normalizeText(a.name || "");
-        const bNameNormalized = ScryfallUtils.normalizeText(b.name || "");
+        const aSearchKey = a.search_key ?? "";
+        const bSearchKey = b.search_key ?? "";
 
         // Check for exact matches
-        const aExact = searchTerms.some(term => aNameNormalized === term);
-        const bExact = searchTerms.some(term => bNameNormalized === term);
+        const aExact = aSearchKey === normalizedSearchTerm;
+        const bExact = bSearchKey === normalizedSearchTerm;
 
         if (aExact && !bExact) return -1;
         if (!aExact && bExact) return 1;
 
-        // Sort by name
+        // Sort by display name
         return (a.name || "").localeCompare(b.name || "");
       });
 
@@ -194,7 +169,7 @@ export class CardSearchService {
         cards: [],
         totalCount: 0,
         searchTerm,
-        normalizedSearchTerm: ScryfallUtils.normalizeText(searchTerm.trim()),
+        normalizedSearchTerm: CardNameNormalizer.normalizeForSearch(searchTerm.trim()),
         error: error instanceof Error ? error.message : String(error),
       };
     }

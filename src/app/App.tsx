@@ -13,21 +13,12 @@ function App() {
   return (
     <GSAPProvider>
       <div className="app">
-        <header className="app-header">
-          <div className="container">
-            <h1 className="text-center mb-sm">MTG Brawl Deck Builder</h1>
-            <p className="text-center text-secondary mb-0">
-              A powerful deck building tool for MTG Arena Brawl format
-            </p>
-          </div>
-        </header>
-
         <Navigation
           activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={(tabId) => setActiveTab(tabId as TabType)}
           tabs={[
-            { id: 'front', label: 'Front' },
-            { id: 'cardpool', label: 'Cardpool' }
+            { id: 'front', label: 'Home' },
+            { id: 'cardpool', label: 'Card Search' }
           ]}
         />
 
