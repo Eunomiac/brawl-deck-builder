@@ -53,11 +53,34 @@ These modules contain complex third-party library integrations (GSAP) that requi
 - Performance benchmarks for animation smoothness
 - Manual testing for user experience validation
 
+### Supabase Infrastructure Code
+
+**Files Excluded:**
+- `src/services/supabase/types.ts` - Auto-generated TypeScript types (417 lines)
+- `src/services/supabase/client.ts` - Simple configuration with environment variables
+- `src/services/supabase/index.ts` - Barrel export file
+- `src/services/supabase/connection.ts` - Environment-dependent connection utilities
+- `src/services/supabase/database-test.ts` - Database testing utilities
+- `src/shared/components/SupabaseStatus.tsx` - React component with complex dependencies
+
+**Rationale:**
+Supabase infrastructure code involves:
+1. Auto-generated types that don't require validation
+2. Environment variable dependencies that require integration testing
+3. External API dependencies that need real database connections
+4. Configuration code that's better validated through integration tests
+
+**Alternative Testing Approach:**
+- Integration tests with real Supabase connections
+- Manual verification of database connectivity
+- End-to-end tests for database operations
+- Environment-specific testing for configuration validation
+
 ### SonarQube Configuration
 
 ```properties
 # Coverage exclusions for animation integration code
-sonar.coverage.exclusions=**/hooks/useGSAP.ts,**/contexts/GSAPContext.tsx,**/shared/hooks/useGSAP.ts,**/shared/contexts/GSAPContext.tsx,**/shared/utils/animations.ts
+sonar.coverage.exclusions=**/hooks/useGSAP.ts,**/contexts/GSAPContext.tsx,**/shared/hooks/useGSAP.ts,**/shared/contexts/GSAPContext.tsx,**/shared/utils/animations.ts,**/services/supabase/types.ts,**/services/supabase/client.ts,**/services/supabase/index.ts,**/services/supabase/connection.ts,**/services/supabase/database-test.ts,**/shared/components/SupabaseStatus.tsx
 
 # Test file exclusions (standard)
 sonar.test.exclusions=**/*.test.ts,**/*.test.tsx,**/*.spec.ts,**/*.spec.tsx
