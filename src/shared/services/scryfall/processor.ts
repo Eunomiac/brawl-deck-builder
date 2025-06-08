@@ -5,6 +5,7 @@ import type { ScryfallCard, ProcessedCard } from "../../types/mtg";
 import { ScryfallUtils } from "./api";
 import { CardNameNormalizer } from "../../utils/cardNameNormalization";
 import { ScryfallDebugger } from "./debug";
+import { CardRarity } from "../../utils/enums";
 
 /**
  * Card processor for filtering and transforming Scryfall data
@@ -27,11 +28,34 @@ export class CardProcessor {
   }
 
   /**
-   * Deduplicate cards by oracle_id using simple version selection logic:
+   * Extract set release dates from filtered cards
+   * This builds a mapping of set codes to release dates from the cards we're actually using
+   */
+  static extractSetReleaseDates(cards: ScryfallCard[]): Record<string, string> {
+    console.log(`📅 Extracting set release dates from ${cards.length} cards...`);
+
+    const setDates: Record<string, string> = {};
+
+    for (const card of cards) {
+      if (!setDates[card.set]) {
+        // Use the card's released_at if available, otherwise fall back to a default
+        // Note: Some cards might not have released_at, but most should
+        setDates[card.set] = card.released_at ?? "1993-01-01"; // Default to very old date
+      }
+    }
+
+    const setCount = Object.keys(setDates).length;
+    console.log(`✅ Found ${setCount} unique sets with release dates`);
+
+    return setDates;
+  }
+
+  /**
+   * Deduplicate cards by oracle_id using proper version selection logic:
    * Since we've already filtered to valid cards, we just need to pick the best version
    * from the remaining candidates and track all sets the card appeared in
    */
-  static deduplicateCards(cards: ScryfallCard[]): ScryfallCard[] {
+  static deduplicateCards(cards: ScryfallCard[], setReleaseDates: Record<string, string>): ScryfallCard[] {
     console.log(`🔄 Deduplicating ${cards.length} valid cards by oracle_id...`);
 
     const cardGroups = new Map<string, ScryfallCard[]>();
@@ -56,7 +80,7 @@ export class CardProcessor {
       }
 
       // Apply version selection logic
-      const selectedCard = this.selectBestCardVersion(variants);
+      const selectedCard = this.selectBestCardVersion(variants, setReleaseDates);
       selectedCards.push(selectedCard);
       versionSelectionApplied++;
     }
@@ -74,18 +98,46 @@ export class CardProcessor {
    * Since all variants are already valid (Arena-legal + English), we just need to pick the best one
    * and collect all set codes for date range analysis
    */
-  private static selectBestCardVersion(variants: ScryfallCard[]): ScryfallCard & { arena_legal_sets?: string[] } {
+  private static selectBestCardVersion(variants: ScryfallCard[], setReleaseDates: Record<string, string>): ScryfallCard & { arena_legal_sets?: string[] } {
+
+    // If only one variant, no need to select - but still need to populate `arena_legal_sets` property
+    if (variants.length === 1) {
+      return {
+        ...variants[0],
+        arena_legal_sets: [variants[0].set]
+      };
+    }
+
     // Collect all set codes from variants (all are Arena-legal since we pre-filtered)
     const arenaLegalSets = variants
       .map(card => card.set)
       .filter((set, index, array) => array.indexOf(set) === index) // Remove duplicates
       .sort((a, b) => a.localeCompare(b));
 
-    // Simple selection: most recent set code (alphabetically last for now)
-    // TODO: Implement proper rarity-based selection (Common > Uncommon > Rare > Mythic)
-    let selectedCard = variants[0];
-    for (const card of variants.slice(1)) {
-      if (card.set > selectedCard.set) {
+    // Find the lowest rarity present in the cards in variants:  CardRarity.Mythic > CardRarity.Rare > CardRarity.Uncommon > CardRarity.Common
+    const rarityScore: Record<string, number> = {
+      [CardRarity.Mythic]: 4,
+      [CardRarity.Rare]: 3,
+      [CardRarity.Uncommon]: 2,
+      [CardRarity.Common]: 1
+    };
+    const lowestRarity = variants.reduce<Maybe<CardRarity>>((lowest, card) => {
+      if (!card.rarity) return lowest;
+      if (!lowest) return card.rarity as CardRarity;
+      return rarityScore[card.rarity] < rarityScore[lowest] ? card.rarity as CardRarity : lowest;
+    }, undefined as Maybe<CardRarity>);
+
+    // Filter variants to only include that rarity
+    const filteredVariants = variants.filter(card => card.rarity === lowestRarity);
+
+    // Select the most recently released version using set release dates
+    let selectedCard = filteredVariants[0];
+    for (const card of filteredVariants.slice(1)) {
+      const currentReleaseDate = setReleaseDates[selectedCard.set] || "1993-01-01";
+      const candidateReleaseDate = setReleaseDates[card.set] || "1993-01-01";
+
+      // Choose the more recently released set (later date)
+      if (candidateReleaseDate > currentReleaseDate) {
         selectedCard = card;
       }
     }
@@ -220,22 +272,26 @@ export class CardProcessor {
     console.log("🚀 Starting card processing pipeline...");
 
     // Stage 1: Filter for valid cards (Brawl-legal + English)
-    if (onProgress) onProgress("Filtering cards", 0, 3);
+    if (onProgress) onProgress("Filtering cards", 0, 4);
     const filtered = this.filterValidCards(cards);
 
-    // Stage 2: Deduplicate by oracle_id
-    if (onProgress) onProgress("Deduplicating cards", 1, 3);
-    const deduplicated = this.deduplicateCards(filtered);
+    // Stage 2: Extract set release dates from filtered cards
+    if (onProgress) onProgress("Extracting set data", 1, 4);
+    const setReleaseDates = this.extractSetReleaseDates(filtered);
 
-    // Stage 3: Process into our format
-    if (onProgress) onProgress("Processing cards", 2, 3);
+    // Stage 3: Deduplicate by oracle_id
+    if (onProgress) onProgress("Deduplicating cards", 2, 4);
+    const deduplicated = this.deduplicateCards(filtered, setReleaseDates);
+
+    // Stage 4: Process into our format
+    if (onProgress) onProgress("Processing cards", 3, 4);
     const processed = this.processCards(deduplicated, (current, total) => {
       if (onProgress) {
-        onProgress(`Processing cards (${current}/${total})`, 2, 3);
+        onProgress(`Processing cards (${current}/${total})`, 3, 4);
       }
     });
 
-    if (onProgress) onProgress("Complete", 3, 3);
+    if (onProgress) onProgress("Complete", 4, 4);
 
     console.log("✅ Card processing pipeline complete");
     return processed;

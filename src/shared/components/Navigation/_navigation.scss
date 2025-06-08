@@ -248,8 +248,9 @@
       .card-image {
         width: 100%;
         height: auto;
-        border-radius: $border-radius-sm;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        border-radius: $border-radius-card-display;
       }
     }
   }

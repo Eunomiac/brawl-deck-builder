@@ -1,7 +1,7 @@
 // Scryfall API Service
 // Handles communication with Scryfall API for bulk data downloads
 
-import type { ScryfallBulkData, ScryfallCard } from "../../types/mtg";
+import type { ScryfallBulkData, ScryfallCard, ScryfallSet, ProcessedCard } from "../../types/mtg";
 
 /**
  * Scryfall API base URL
@@ -162,6 +162,91 @@ export class ScryfallAPI {
       updatedAt: new Date(bulkData.updated_at),
       downloadUri: bulkData.download_uri,
     };
+  }
+
+  /**
+   * Fetch all sets from Scryfall API
+   */
+  static async getAllSets(): Promise<ScryfallSet[]> {
+    try {
+      const response = await fetch(`${SCRYFALL_API_BASE}/sets`);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch sets: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      assert(data.data && Array.isArray(data.data), "Invalid sets response format");
+
+      return data.data as ScryfallSet[];
+    } catch (error) {
+      console.error("Error fetching Scryfall sets:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get Arena-legal sets with their names, codes, and release dates
+   * Returns a simple object literal constant suitable for use in code
+   */
+  static async getArenaLegalSets(): Promise<Record<string, {
+    name: string;
+    code: string;
+    released_at: string | null;
+    set_type: string;
+    digital: boolean;
+  }>> {
+    try {
+      console.log("🔍 Fetching all sets from Scryfall...");
+      const allSets = await this.getAllSets();
+
+      console.log(`📊 Found ${allSets.length} total sets, filtering for Arena-legal sets...`);
+
+      // Filter sets that have arena_code or are digital sets that appear on Arena
+      const arenaLegalSets = allSets.filter(set => {
+        // Sets with explicit Arena codes are definitely on Arena
+        if (set.arena_code) {
+          return true;
+        }
+
+        // Digital sets might be on Arena (like Alchemy sets)
+        // We'll include them and let the user filter further if needed
+        if (set.digital) {
+          return true;
+        }
+
+        // Some physical sets are also on Arena but don't have arena_code
+        // We'll include all sets and let the user decide what to filter out
+        return true;
+      });
+
+      console.log(`✅ Found ${arenaLegalSets.length} potentially Arena-legal sets`);
+
+      // Convert to the requested format: object literal with set codes as keys
+      const result: Record<string, {
+        name: string;
+        code: string;
+        released_at: string | null;
+        set_type: string;
+        digital: boolean;
+      }> = {};
+
+      for (const set of arenaLegalSets) {
+        result[set.code] = {
+          name: set.name,
+          code: set.code,
+          released_at: set.released_at || null,
+          set_type: set.set_type,
+          digital: set.digital,
+        };
+      }
+
+      return result;
+    } catch (error) {
+      console.error("Error fetching Arena-legal sets:", error);
+      throw error;
+    }
   }
 }
 
@@ -327,5 +412,66 @@ export class ScryfallUtils {
     }
 
     return terms;
+  }
+
+  /**
+   * Sort set codes by release date (most recent first)
+   * Uses the set release dates extracted during card processing
+   */
+  static sortSetsByReleaseDate(
+    setCodes: string[],
+    setReleaseDates: Record<string, string>,
+    ascending: boolean = false
+  ): string[] {
+    return setCodes.slice().sort((a, b) => {
+      const dateA = setReleaseDates[a] || "1993-01-01";
+      const dateB = setReleaseDates[b] || "1993-01-01";
+
+      if (ascending) {
+        return dateA.localeCompare(dateB);
+      } else {
+        return dateB.localeCompare(dateA); // Most recent first
+      }
+    });
+  }
+
+  /**
+   * Find the most recently released set from a list of set codes
+   * Useful for dating decklists based on the cards they contain
+   */
+  static getMostRecentSet(
+    setCodes: string[],
+    setReleaseDates: Record<string, string>
+  ): { setCode: string; releaseDate: string } | null {
+    if (setCodes.length === 0) return null;
+
+    const sorted = this.sortSetsByReleaseDate(setCodes, setReleaseDates, false);
+    const mostRecentSet = sorted[0];
+
+    return {
+      setCode: mostRecentSet,
+      releaseDate: setReleaseDates[mostRecentSet] || "1993-01-01"
+    };
+  }
+
+  /**
+   * Get all unique set codes from processed cards
+   * Useful for getting a complete list of Arena-legal sets
+   */
+  static getUniqueSetCodes(cards: ProcessedCard[]): string[] {
+    const setCodes = new Set<string>();
+
+    for (const card of cards) {
+      setCodes.add(card.set_code);
+
+      // Also include all arena_legal_sets if available
+      if (card.arena_legal_sets) {
+        for (const setCode of card.arena_legal_sets) {
+          setCodes.add(setCode);
+        }
+      }
+    }
+
+    return Array.from(setCodes).sort();
   }
 }

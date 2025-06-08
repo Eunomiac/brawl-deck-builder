@@ -63,6 +63,7 @@ export interface ScryfallCard {
   set_name: string;
   rarity: string;
   lang: string;
+  released_at?: string;
 
   // Legalities and games
   legalities: ScryfallLegalities;
@@ -104,6 +105,30 @@ export interface ScryfallBulkData {
   download_uri: string;
   content_type: string;
   content_encoding?: string;
+}
+
+export interface ScryfallSet {
+  object: "set";
+  id: string;
+  code: string;
+  mtgo_code?: string;
+  arena_code?: string;
+  tcgplayer_id?: number;
+  name: string;
+  set_type: string;
+  released_at?: string;
+  block_code?: string;
+  block?: string;
+  parent_set_code?: string;
+  card_count: number;
+  printed_size?: number;
+  digital: boolean;
+  foil_only: boolean;
+  nonfoil_only: boolean;
+  scryfall_uri: string;
+  uri: string;
+  icon_svg_uri: string;
+  search_uri: string;
 }
 
 /**

@@ -4,6 +4,7 @@
 import { ScryfallAPI } from "./api";
 import { CardProcessor } from "./processor";
 import { CardDatabaseService } from "./database";
+import { SetsDatabaseService } from "../sets";
 import type {
   CardImportProgress,
   CardImportResult,
@@ -137,6 +138,34 @@ export class CardImportService {
       if (validation.warnings.length > 0) {
         console.warn("⚠️ Card validation warnings:", validation.warnings);
       }
+
+      // Step 3.5: Extract and save set data
+      updateProgress(
+        CardImportStatus.ProcessingCards,
+        "Extracting and saving set data...",
+        {
+          totalCards: rawCards.length,
+          processedCards: processedCards.length,
+        }
+      );
+
+      // Extract set release dates from the filtered cards
+      const filteredCards = CardProcessor.filterValidCards(rawCards);
+      const setReleaseDates = CardProcessor.extractSetReleaseDates(filteredCards);
+
+      // Clear existing sets if requested
+      if (clearExisting) {
+        await SetsDatabaseService.clearExistingSets();
+      }
+
+      // Save set data to database
+      const setResult = await SetsDatabaseService.saveSets(setReleaseDates);
+      if (!setResult.success) {
+        errors.push(...setResult.errors);
+        console.warn("⚠️ Set data saving issues:", setResult.errors);
+      }
+
+      console.log(`📅 Saved ${setResult.totalSaved} sets to database`);
 
       // Step 4: Save to database
       updateProgress(

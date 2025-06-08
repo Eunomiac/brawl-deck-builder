@@ -89,7 +89,7 @@ export const arrayUtils = {
    * @param keyFn - Optional function to extract comparison key
    * @returns Array with duplicates removed
    */
-  unique: <T>(array: T[], keyFn?: (item: T) => any): T[] => {
+  unique: <T>(array: T[], keyFn?: (item: T) => unknown): T[] => {
     if (!keyFn) {
       return [...new Set(array)];
     }
@@ -186,7 +186,7 @@ export const objectUtils = {
     if (typeof obj === "object") {
       const cloned = {} as T;
       Object.keys(obj).forEach(key => {
-        (cloned as any)[key] = objectUtils.deepClone((obj as any)[key]);
+        cloned[key as keyof typeof cloned] = objectUtils.deepClone(cloned[key as keyof typeof cloned]);
       });
       return cloned;
     }

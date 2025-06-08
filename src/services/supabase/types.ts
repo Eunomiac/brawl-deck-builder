@@ -300,6 +300,39 @@ export type Database = {
           },
         ]
       }
+      sets: {
+        Row: {
+          created_at: string | null
+          digital: boolean | null
+          id: string
+          name: string
+          released_at: string | null
+          set_code: string
+          set_type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          digital?: boolean | null
+          id?: string
+          name: string
+          released_at?: string | null
+          set_code: string
+          set_type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          digital?: boolean | null
+          id?: string
+          name?: string
+          released_at?: string | null
+          set_code?: string
+          set_type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
