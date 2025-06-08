@@ -4,32 +4,35 @@
 import type { ScryfallCard, ProcessedCard } from "../../types/mtg";
 import { ScryfallUtils } from "./api";
 import { CardNameNormalizer } from "../../utils/cardNameNormalization";
+import { ScryfallDebugger } from "./debug";
 
 /**
  * Card processor for filtering and transforming Scryfall data
  */
 export class CardProcessor {
   /**
-   * Filter cards to only include Brawl-legal Arena cards
+   * Filter cards to only include valid cards for our database:
+   * 1. Must be Brawl-legal on Arena
+   * 2. Must be in English (to avoid foreign language cosmetic prints)
    */
-  static filterBrawlLegalCards(cards: ScryfallCard[]): ScryfallCard[] {
-    console.log(`🔍 Filtering ${cards.length} cards for Brawl legality on Arena...`);
+  static filterValidCards(cards: ScryfallCard[]): ScryfallCard[] {
+    console.log(`🔍 Filtering ${cards.length} cards for validity (Brawl-legal + English)...`);
 
-    const filtered = cards.filter(card => ScryfallUtils.isBrawlLegalOnArena(card));
+    const filtered = cards.filter(card =>
+      ScryfallUtils.isBrawlLegalOnArena(card) && card.lang === "en"
+    );
 
-    console.log(`✅ Found ${filtered.length} Brawl-legal Arena cards`);
+    console.log(`✅ Found ${filtered.length} valid cards (${cards.length - filtered.length} filtered out)`);
     return filtered;
   }
 
   /**
-   * Deduplicate cards by oracle_id using sophisticated version selection logic:
-   * 1. Filter out non-English variants
-   * 2. Select lowest rarity (Common > Uncommon > Rare > Mythic)
-   * 3. Select newest printing from remaining candidates
-   * 4. Track all Arena-legal sets the card appeared in
+   * Deduplicate cards by oracle_id using simple version selection logic:
+   * Since we've already filtered to valid cards, we just need to pick the best version
+   * from the remaining candidates and track all sets the card appeared in
    */
   static deduplicateCards(cards: ScryfallCard[]): ScryfallCard[] {
-    console.log(`🔄 Deduplicating ${cards.length} cards by oracle_id (using enhanced version selection)...`);
+    console.log(`🔄 Deduplicating ${cards.length} valid cards by oracle_id...`);
 
     const cardGroups = new Map<string, ScryfallCard[]>();
 
@@ -68,26 +71,20 @@ export class CardProcessor {
 
   /**
    * Select the best version of a card from multiple variants
-   * Also collects all Arena-legal set codes for date range analysis
+   * Since all variants are already valid (Arena-legal + English), we just need to pick the best one
+   * and collect all set codes for date range analysis
    */
   private static selectBestCardVersion(variants: ScryfallCard[]): ScryfallCard & { arena_legal_sets?: string[] } {
-    // Collect all Arena-legal set codes from variants
+    // Collect all set codes from variants (all are Arena-legal since we pre-filtered)
     const arenaLegalSets = variants
-      .filter(card => ScryfallUtils.isBrawlLegalOnArena(card))
       .map(card => card.set)
       .filter((set, index, array) => array.indexOf(set) === index) // Remove duplicates
-      .sort();
-
-    // For now, use simple selection: prefer Arena-legal, then most recent set code
-    const arenaLegalCandidates = variants.filter(card =>
-      ScryfallUtils.isBrawlLegalOnArena(card)
-    );
-
-    const candidates = arenaLegalCandidates.length > 0 ? arenaLegalCandidates : variants;
+      .sort((a, b) => a.localeCompare(b));
 
     // Simple selection: most recent set code (alphabetically last for now)
-    let selectedCard = candidates[0];
-    for (const card of candidates.slice(1)) {
+    // TODO: Implement proper rarity-based selection (Common > Uncommon > Rare > Mythic)
+    let selectedCard = variants[0];
+    for (const card of variants.slice(1)) {
       if (card.set > selectedCard.set) {
         selectedCard = card;
       }
@@ -104,6 +101,9 @@ export class CardProcessor {
    * Process a single Scryfall card into our database format
    */
   static processCard(card: ScryfallCard & { arena_legal_sets?: string[] }): ProcessedCard {
+    // Watch card debugging: Log raw card data
+    ScryfallDebugger.logRawCard(card, "Raw Card Processing");
+
     const canBeCommander = ScryfallUtils.canBeCommander(card);
     const canBeCompanion = ScryfallUtils.canBeCompanion(card);
     const companionRestriction = ScryfallUtils.extractCompanionRestriction(card);
@@ -145,7 +145,7 @@ export class CardProcessor {
       meldPartner: null, // ... and then Implement meld partner detection
     };
 
-    return {
+    const processedCard: ProcessedCard = {
       oracle_id: card.oracle_id,
       original_name: originalName,
       name: displayName,
@@ -168,6 +168,12 @@ export class CardProcessor {
       scryfall_uri: card.scryfall_uri,
       search_terms: searchTerms,
     };
+
+    // Watch card debugging: Log processed card and transformation
+    ScryfallDebugger.logProcessedCard(processedCard, "Final Processed Card");
+    ScryfallDebugger.logCardTransformation(card, processedCard);
+
+    return processedCard;
   }
 
   /**
@@ -204,8 +210,8 @@ export class CardProcessor {
   }
 
   /**
-   * Full processing pipeline: deduplicate, filter, and process cards
-   * Note: Deduplication happens BEFORE filtering to ensure we get the best version of each card
+   * Full processing pipeline: filter, deduplicate, and process cards
+   * Note: Filtering happens FIRST to remove invalid cards, then deduplication for efficiency
    */
   static async processCardData(
     cards: ScryfallCard[],
@@ -213,17 +219,17 @@ export class CardProcessor {
   ): Promise<ProcessedCard[]> {
     console.log("🚀 Starting card processing pipeline...");
 
-    // Stage 1: Deduplicate by oracle_id (prioritizing Arena-legal versions)
-    if (onProgress) onProgress("Deduplicating cards", 0, 3);
-    const deduplicated = this.deduplicateCards(cards);
+    // Stage 1: Filter for valid cards (Brawl-legal + English)
+    if (onProgress) onProgress("Filtering cards", 0, 3);
+    const filtered = this.filterValidCards(cards);
 
-    // Stage 2: Filter for Brawl-legal Arena cards
-    if (onProgress) onProgress("Filtering cards", 1, 3);
-    const filtered = this.filterBrawlLegalCards(deduplicated);
+    // Stage 2: Deduplicate by oracle_id
+    if (onProgress) onProgress("Deduplicating cards", 1, 3);
+    const deduplicated = this.deduplicateCards(filtered);
 
     // Stage 3: Process into our format
     if (onProgress) onProgress("Processing cards", 2, 3);
-    const processed = this.processCards(filtered, (current, total) => {
+    const processed = this.processCards(deduplicated, (current, total) => {
       if (onProgress) {
         onProgress(`Processing cards (${current}/${total})`, 2, 3);
       }

@@ -1,11 +1,11 @@
 // MTG Brawl Deck Builder - Main Application Component
 import { useState } from 'react';
-import {AnimatedCard, DraggableCard, LoadingSpinner, SupabaseStatus, Navigation} from '../shared/components';
+import {AnimatedCard, DraggableCard, LoadingSpinner, SupabaseStatus, Navigation, ScryfallDebugPanel} from '../shared/components';
 import {GSAPProvider} from '../shared/contexts/GSAPContext';
 import {CardImportButton} from '../features/collection/components';
 import {CardSearch} from '../features/search/components';
 
-type TabType = 'front' | 'cardpool';
+type TabType = 'front' | 'cardpool' | 'debug';
 
 function App() {
   const [activeTab, setActiveTab] = useState<TabType>('front');
@@ -18,7 +18,8 @@ function App() {
           onTabChange={(tabId) => setActiveTab(tabId as TabType)}
           tabs={[
             { id: 'front', label: 'Home' },
-            { id: 'cardpool', label: 'Card Search' }
+            { id: 'cardpool', label: 'Card Search' },
+            ...(import.meta.env.DEV ? [{ id: 'debug', label: '🔧 Debug' }] : [])
           ]}
         />
 
@@ -141,6 +142,12 @@ function App() {
             {activeTab === 'cardpool' && (
               <div className="cardpool-content">
                 <CardSearch />
+              </div>
+            )}
+
+            {activeTab === 'debug' && import.meta.env.DEV && (
+              <div className="debug-content">
+                <ScryfallDebugPanel />
               </div>
             )}
           </div>

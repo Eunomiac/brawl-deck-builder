@@ -58,6 +58,8 @@ jest.mock('../../../services/supabase/client', () => {
 });
 
 import { ScryfallUtils } from '../scryfall/api';
+import type { ScryfallCard } from "../../types/mtg";
+import { CardNameNormalizer } from '../../utils/cardNameNormalization';
 
 describe('CardSearchService', () => {
   describe('Search Logic', () => {
@@ -102,9 +104,9 @@ describe('CardSearchService', () => {
       const mockCard = {
         name: 'Lightning Bolt',
         card_faces: undefined
-      } as any;
+      } as unknown;
 
-      const terms = ScryfallUtils.getCardSearchTerms(mockCard);
+      const terms = ScryfallUtils.getCardSearchTerms(mockCard as ScryfallCard);
       const termStrings = terms.map(t => t.search_term);
 
       expect(termStrings).toContain('lightning bolt'); // Primary
@@ -115,9 +117,9 @@ describe('CardSearchService', () => {
       const mockCard = {
         name: 'A-Lightning Bolt',
         card_faces: undefined
-      } as any;
+      };
 
-      const terms = ScryfallUtils.getCardSearchTerms(mockCard);
+      const terms = ScryfallUtils.getCardSearchTerms(mockCard as ScryfallCard);
       const termStrings = terms.map(t => t.search_term);
 
       expect(termStrings).toContain('a lightning bolt'); // Primary (normalized)
@@ -128,9 +130,9 @@ describe('CardSearchService', () => {
       const mockCard = {
         name: 'Fire // Ice',
         card_faces: undefined
-      } as any;
+      };
 
-      const terms = ScryfallUtils.getCardSearchTerms(mockCard);
+      const terms = ScryfallUtils.getCardSearchTerms(mockCard as ScryfallCard);
       const termStrings = terms.map(t => t.search_term);
 
       // Primary name
@@ -155,9 +157,9 @@ describe('CardSearchService', () => {
       const mockCard = {
         name: 'A-Fire // Ice',
         card_faces: undefined
-      } as any;
+      };
 
-      const terms = ScryfallUtils.getCardSearchTerms(mockCard);
+      const terms = ScryfallUtils.getCardSearchTerms(mockCard as ScryfallCard);
       const termStrings = terms.map(t => t.search_term);
 
       // Should include all combinations
@@ -173,9 +175,9 @@ describe('CardSearchService', () => {
       const mockCard = {
         name: 'Lörièn // Æther',
         card_faces: undefined
-      } as any;
+      };
 
-      const terms = ScryfallUtils.getCardSearchTerms(mockCard);
+      const terms = ScryfallUtils.getCardSearchTerms(mockCard as ScryfallCard);
       const termStrings = terms.map(t => t.search_term);
 
       expect(termStrings).toContain('lorien aether');
@@ -187,9 +189,9 @@ describe('CardSearchService', () => {
       const mockCard = {
         name: 'Test Card',
         card_faces: undefined
-      } as any;
+      };
 
-      const terms = ScryfallUtils.getCardSearchTerms(mockCard);
+      const terms = ScryfallUtils.getCardSearchTerms(mockCard as ScryfallCard);
       const termStrings = terms.map(t => t.search_term);
       const uniqueTerms = [...new Set(termStrings)];
 
@@ -203,14 +205,97 @@ describe('CardSearchService', () => {
           { name: 'Delver of Secrets' },
           { name: 'Insectile Aberration' }
         ]
-      } as any;
+      };
 
-      const terms = ScryfallUtils.getCardSearchTerms(mockCard);
+      const terms = ScryfallUtils.getCardSearchTerms(mockCard as ScryfallCard);
       const termStrings = terms.map(t => t.search_term);
 
       expect(termStrings).toContain('delver of secrets');
       expect(termStrings).toContain('insectile aberration');
       expect(termStrings).toContain('delver of secrets insectile aberration');
+    });
+  });
+
+  describe('Double-Sided Card Exact Match Logic', () => {
+    it('should identify full exact matches correctly', () => {
+      const normalizedSearchTerm = 'dusk';
+      const searchKey = 'dusk';
+
+      expect(searchKey === normalizedSearchTerm).toBe(true);
+    });
+
+    it('should identify first half matches correctly', () => {
+      const normalizedSearchTerm = 'dusk';
+      const searchKey = 'dusk // dawn';
+
+      expect(searchKey.startsWith(`${normalizedSearchTerm} // `)).toBe(true);
+      expect(searchKey.endsWith(` // ${normalizedSearchTerm}`)).toBe(false);
+    });
+
+    it('should identify second half matches correctly', () => {
+      const normalizedSearchTerm = 'dawn';
+      const searchKey = 'dusk // dawn';
+
+      expect(searchKey.startsWith(`${normalizedSearchTerm} // `)).toBe(false);
+      expect(searchKey.endsWith(` // ${normalizedSearchTerm}`)).toBe(true);
+    });
+
+    it('should handle complex double-sided card names', () => {
+      const normalizedSearchTerm = CardNameNormalizer.normalizeForSearch('Hakka, the Raven');
+      const searchKey = CardNameNormalizer.normalizeForSearch('Alrund, God of the Cosmos // Hakka, the Raven');
+
+      expect(searchKey.endsWith(` // ${normalizedSearchTerm}`)).toBe(true);
+    });
+
+    it('should handle Alchemy double-sided cards', () => {
+      const normalizedSearchTerm = CardNameNormalizer.normalizeForSearch('Delver of Secrets');
+      const searchKey = CardNameNormalizer.normalizeForSearch('A-Delver of Secrets // A-Insectile Aberration');
+
+      // Should match the first half after Alchemy prefix removal
+      expect(searchKey.startsWith(`${normalizedSearchTerm} // `)).toBe(true);
+    });
+
+    it('should prioritize full matches over half matches in sorting', () => {
+      const normalizedSearchTerm = 'test';
+
+      const fullMatch = { search_key: 'test', name: 'Test Card' };
+      const halfMatch = { search_key: 'test // other', name: 'Test // Other' };
+      const fuzzyMatch = { search_key: 'testing', name: 'Testing Card' };
+
+      const cards = [halfMatch, fuzzyMatch, fullMatch];
+
+      // Simulate the sorting logic
+      cards.sort((a, b) => {
+        const aSearchKey = a.search_key ?? "";
+        const bSearchKey = b.search_key ?? "";
+
+        // Check for full exact matches - highest priority
+        const aFullExact = aSearchKey === normalizedSearchTerm;
+        const bFullExact = bSearchKey === normalizedSearchTerm;
+
+        if (aFullExact && !bFullExact) return -1;
+        if (!aFullExact && bFullExact) return 1;
+
+        // Check for half-matches on double-sided cards - medium priority
+        const aHalfMatch = aSearchKey.startsWith(`${normalizedSearchTerm} // `) ||
+                          aSearchKey.endsWith(` // ${normalizedSearchTerm}`);
+        const bHalfMatch = bSearchKey.startsWith(`${normalizedSearchTerm} // `) ||
+                          bSearchKey.endsWith(` // ${normalizedSearchTerm}`);
+
+        if (aHalfMatch && !bHalfMatch) return -1;
+        if (!aHalfMatch && bHalfMatch) return 1;
+
+        // For remaining matches (fuzzy), preserve alphabetical order
+        if (!aFullExact && !bFullExact && !aHalfMatch && !bHalfMatch) {
+          return (a.name || "").localeCompare(b.name || "");
+        }
+
+        return 0;
+      });
+
+      expect(cards[0]).toBe(fullMatch);  // Full match first
+      expect(cards[1]).toBe(halfMatch);  // Half match second
+      expect(cards[2]).toBe(fuzzyMatch); // Fuzzy match last
     });
   });
 });

@@ -13,15 +13,7 @@ export default {
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
       useESM: true,
-      tsconfig: {
-        module: 'esnext',
-        target: 'es2022',
-        moduleResolution: 'node',
-        allowSyntheticDefaultImports: true,
-        esModuleInterop: true,
-        jsx: 'react-jsx',
-        types: ['jest', '@testing-library/jest-dom', 'node'],
-      },
+      tsconfig: 'tsconfig.test.json',
     }],
   },
 
@@ -95,7 +87,6 @@ export default {
     '!src/shared/hooks/useCardImport.ts', // React hook with complex state management
     // Search integration files excluded due to complex database interactions
     // requiring integration testing rather than unit testing
-    '!src/shared/services/search/CardSearchService.ts', // Database service with Supabase queries
     '!src/features/search/components/CardSearch.tsx', // React component with complex async state management
   ],
 

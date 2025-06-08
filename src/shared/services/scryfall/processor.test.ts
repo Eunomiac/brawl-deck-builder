@@ -23,6 +23,15 @@ jest.mock("./api", () => ({
   }
 }));
 
+// Mock ScryfallDebugger since it imports Supabase client
+jest.mock("./debug", () => ({
+  ScryfallDebugger: {
+    logRawCard: jest.fn(),
+    logProcessedCard: jest.fn(),
+    logCardTransformation: jest.fn(),
+  }
+}));
+
 describe("CardProcessor", () => {
   const mockScryfallUtils = ScryfallUtils as jest.Mocked<typeof ScryfallUtils>;
 
@@ -38,42 +47,46 @@ describe("CardProcessor", () => {
     ]);
   });
 
-  describe("filterBrawlLegalCards", () => {
-    it("should filter cards using ScryfallUtils.isBrawlLegalOnArena", () => {
+  describe("filterValidCards", () => {
+    it("should filter cards using ScryfallUtils.isBrawlLegalOnArena and lang=en", () => {
       const cards: Partial<ScryfallCard>[] = [
-        { name: "Legal Card", oracle_id: "legal-1" },
-        { name: "Illegal Card", oracle_id: "illegal-1" },
-        { name: "Another Legal Card", oracle_id: "legal-2" }
+        { name: "Legal English Card", oracle_id: "legal-1", lang: "en" },
+        { name: "Illegal Card", oracle_id: "illegal-1", lang: "en" },
+        { name: "Legal Foreign Card", oracle_id: "legal-2", lang: "ja" },
+        { name: "Another Legal English Card", oracle_id: "legal-3", lang: "en" }
       ];
 
       mockScryfallUtils.isBrawlLegalOnArena
-        .mockReturnValueOnce(true)   // Legal Card
+        .mockReturnValueOnce(true)   // Legal English Card
         .mockReturnValueOnce(false)  // Illegal Card
-        .mockReturnValueOnce(true);  // Another Legal Card
+        .mockReturnValueOnce(true)   // Legal Foreign Card (but wrong language)
+        .mockReturnValueOnce(true);  // Another Legal English Card
 
-      const result = CardProcessor.filterBrawlLegalCards(cards as ScryfallCard[]);
+      const result = CardProcessor.filterValidCards(cards as ScryfallCard[]);
 
       expect(result).toHaveLength(2);
-      expect(result[0].name).toBe("Legal Card");
-      expect(result[1].name).toBe("Another Legal Card");
-      expect(mockScryfallUtils.isBrawlLegalOnArena).toHaveBeenCalledTimes(3);
+      expect(result[0].name).toBe("Legal English Card");
+      expect(result[1].name).toBe("Another Legal English Card");
+      expect(mockScryfallUtils.isBrawlLegalOnArena).toHaveBeenCalledTimes(4);
     });
 
-    it("should return empty array when no cards are legal", () => {
+    it("should return empty array when no cards are valid", () => {
       const cards: Partial<ScryfallCard>[] = [
-        { name: "Illegal Card 1", oracle_id: "illegal-1" },
-        { name: "Illegal Card 2", oracle_id: "illegal-2" }
+        { name: "Illegal Card 1", oracle_id: "illegal-1", lang: "en" },
+        { name: "Legal Foreign Card", oracle_id: "legal-1", lang: "ja" }
       ];
 
-      mockScryfallUtils.isBrawlLegalOnArena.mockReturnValue(false);
+      mockScryfallUtils.isBrawlLegalOnArena
+        .mockReturnValueOnce(false)  // Illegal Card 1
+        .mockReturnValueOnce(true);  // Legal Foreign Card (but wrong language)
 
-      const result = CardProcessor.filterBrawlLegalCards(cards as ScryfallCard[]);
+      const result = CardProcessor.filterValidCards(cards as ScryfallCard[]);
 
       expect(result).toHaveLength(0);
     });
 
     it("should handle empty input array", () => {
-      const result = CardProcessor.filterBrawlLegalCards([]);
+      const result = CardProcessor.filterValidCards([]);
       expect(result).toEqual([]);
     });
   });
@@ -139,62 +152,30 @@ describe("CardProcessor", () => {
       expect(result[0].name).toBe("Single Card");
     });
 
-    it("should prefer Arena-legal version over non-Arena version", () => {
+    it("should collect arena_legal_sets from all variants", () => {
       const cards: ScryfallCard[] = [
         {
           oracle_id: "oracle-1",
           name: "Test Card",
-          set: "c20",
-          // Mock non-Arena legal card
+          set: "m21",
+        } as ScryfallCard,
+        {
+          oracle_id: "oracle-1", // Same oracle_id
+          name: "Test Card",
+          set: "znr",
         } as ScryfallCard,
         {
           oracle_id: "oracle-1", // Same oracle_id
           name: "Test Card",
           set: "akr",
-          // Mock Arena legal card
         } as ScryfallCard,
       ];
-
-      // Clear the default mock and set specific behavior
-      mockScryfallUtils.isBrawlLegalOnArena.mockReset();
-      mockScryfallUtils.isBrawlLegalOnArena.mockImplementation((card: ScryfallCard) => {
-        // c20 is not Arena-legal, akr is Arena-legal
-        return card.set === "akr";
-      });
 
       const result = CardProcessor.deduplicateCards(cards);
 
       expect(result).toHaveLength(1);
-      expect(result[0].set).toBe("akr"); // Should prefer Arena-legal version
-    });
-
-    it("should keep existing Arena-legal card when new card is not Arena-legal", () => {
-      const cards: ScryfallCard[] = [
-        {
-          oracle_id: "oracle-1",
-          name: "Test Card",
-          set: "akr",
-          // Mock Arena legal card
-        } as ScryfallCard,
-        {
-          oracle_id: "oracle-1", // Same oracle_id
-          name: "Test Card",
-          set: "c20",
-          // Mock non-Arena legal card
-        } as ScryfallCard,
-      ];
-
-      // Clear the default mock and set specific behavior
-      mockScryfallUtils.isBrawlLegalOnArena.mockReset();
-      mockScryfallUtils.isBrawlLegalOnArena.mockImplementation((card: ScryfallCard) => {
-        // akr is Arena-legal, c20 is not Arena-legal
-        return card.set === "akr";
-      });
-
-      const result = CardProcessor.deduplicateCards(cards);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].set).toBe("akr"); // Should keep existing Arena-legal version
+      expect(result[0].arena_legal_sets).toEqual(["akr", "m21", "znr"]); // Sorted alphabetically
+      expect(result[0].set).toBe("znr"); // Most recent set code (alphabetically last)
     });
   });
 
@@ -369,9 +350,9 @@ describe("CardProcessor", () => {
   describe("processCardData", () => {
     it("should run the full processing pipeline", async () => {
       const cards: Partial<ScryfallCard>[] = [
-        { oracle_id: "card1", name: "Card 1", set: "m21" },
-        { oracle_id: "card2", name: "Card 2", set: "znr" },
-        { oracle_id: "card1", name: "Card 1 Reprint", set: "m22" } // Duplicate oracle_id
+        { oracle_id: "card1", name: "Card 1", set: "m21", lang: "en" },
+        { oracle_id: "card2", name: "Card 2", set: "znr", lang: "en" },
+        { oracle_id: "card1", name: "Card 1 Reprint", set: "m22", lang: "en" } // Duplicate oracle_id
       ];
 
       // Mock the filter to return all cards as legal
@@ -380,10 +361,10 @@ describe("CardProcessor", () => {
       const onProgress = jest.fn();
       const result = await CardProcessor.processCardData(cards as ScryfallCard[], onProgress);
 
-      // Should deduplicate first, then filter, and process
+      // Should filter first, then deduplicate, and process
       expect(result).toHaveLength(2); // Deduplicated
-      expect(onProgress).toHaveBeenCalledWith("Deduplicating cards", 0, 3);
-      expect(onProgress).toHaveBeenCalledWith("Filtering cards", 1, 3);
+      expect(onProgress).toHaveBeenCalledWith("Filtering cards", 0, 3);
+      expect(onProgress).toHaveBeenCalledWith("Deduplicating cards", 1, 3);
       expect(onProgress).toHaveBeenCalledWith("Processing cards", 2, 3);
       expect(onProgress).toHaveBeenCalledWith("Complete", 3, 3);
     });

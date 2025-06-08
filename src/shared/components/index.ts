@@ -13,6 +13,9 @@ export { Navigation } from './Navigation';
 // Database Components
 export { SupabaseStatus } from './SupabaseStatus';
 
+// Debug Components (development only)
+export { ScryfallDebugPanel } from './debug/ScryfallDebugPanel';
+
 // ... and also Add other component categories as they are created
 // export {} from './layout';
 // export {} from './forms';

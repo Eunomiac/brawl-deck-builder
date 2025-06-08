@@ -62,6 +62,7 @@ export interface ScryfallCard {
   set: string;
   set_name: string;
   rarity: string;
+  lang: string;
 
   // Legalities and games
   legalities: ScryfallLegalities;

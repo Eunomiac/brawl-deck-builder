@@ -16,6 +16,7 @@
 
 // Shared component styles
 @use '../shared/components/Navigation/navigation';
+@use '../shared/components/debug/scryfall-debug-panel';
 
 // Feature-specific component styles
 @use '../features/collection/components/CardImportButton';

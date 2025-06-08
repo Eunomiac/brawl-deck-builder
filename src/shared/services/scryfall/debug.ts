@@ -3,6 +3,7 @@
 
 import { supabase } from "../../../services/supabase/client";
 import type { Json } from "../../../services/supabase/types";
+import type { ScryfallCard, ProcessedCard } from "../../types/mtg";
 
 // Database card type (what we get from Supabase)
 type DatabaseCard = {
@@ -24,9 +25,26 @@ type DatabaseCard = {
 };
 
 /**
+ * Summary of card collection statistics for debugging purposes.
+ * Provides counts and distributions across various card attributes.
+ */
+export interface DebugSummary {
+  totalCards: number;
+  commanders: number;
+  companions: number;
+  byRarity: Record<string, number>;
+  byColorIdentity: Record<string, number>;
+  bySets: Record<string, number>;
+  cmcDistribution: Record<number, number>;
+}
+
+/**
  * Debugging utilities for inspecting imported Scryfall data
  */
 export class ScryfallDebugger {
+  // Watch card functionality for detailed processing debugging
+  private static watchTerm: string | null = null;
+  private static watchMatchCount: number = 0;
   /**
    * Get all imported cards with optional filtering
    * Note: Default limit is now 50000 to ensure all cards are returned
@@ -232,15 +250,7 @@ export class ScryfallDebugger {
    * Get import statistics and summary
    */
   static async getImportSummary(): Promise<{
-    summary: {
-      totalCards: number;
-      commanders: number;
-      companions: number;
-      byRarity: Record<string, number>;
-      byColorIdentity: Record<string, number>;
-      bySets: Record<string, number>;
-      cmcDistribution: Record<number, number>;
-    };
+    summary: DebugSummary;
     error?: string;
   }> {
     try {
@@ -384,6 +394,11 @@ export class ScryfallDebugger {
     console.log("   ScryfallDebugger.getAllCards({limit: 100}) - Get cards with custom limit");
     console.log("   ScryfallDebugger.searchCardsByName('lightning') - Search by name");
     console.log("   ScryfallDebugger.exportToJson() - Download all cards as JSON");
+    console.log("");
+    console.log("🎯 Watch Card Debugging:");
+    console.log("   ScryfallDebugger.setWatchCard('lightning') - Enable verbose debugging for matching cards");
+    console.log("   ScryfallDebugger.clearWatchCard() - Disable watch card debugging");
+    console.log("   ScryfallDebugger.getWatchCard() - Get current watch term");
   }
 
   /**
@@ -401,5 +416,156 @@ export class ScryfallDebugger {
     cards.forEach(card => {
       console.log(`   ${card.name} (${card.set_code}) - ${card.rarity} - CMC ${card.cmc}`);
     });
+  }
+
+  // ========================================
+  // WATCH CARD FUNCTIONALITY
+  // ========================================
+
+  /**
+   * Set a watch term to enable verbose debugging for specific cards during import
+   * When a card name matches this term, detailed processing steps will be logged
+   */
+  static setWatchCard(searchTerm: string): void {
+    this.watchTerm = searchTerm.toLowerCase();
+    this.watchMatchCount = 0;
+    console.log(`🔍 Watch card set to: "${searchTerm}"`);
+    console.log("   Verbose debugging will be enabled for matching cards during import");
+  }
+
+  /**
+   * Clear the current watch card term
+   */
+  static clearWatchCard(): void {
+    const previousTerm = this.watchTerm;
+    this.watchTerm = null;
+    this.watchMatchCount = 0;
+    if (previousTerm) {
+      console.log(`🔍 Watch card cleared (was: "${previousTerm}")`);
+    } else {
+      console.log("🔍 No watch card was set");
+    }
+  }
+
+  /**
+   * Get the current watch card term
+   */
+  static getWatchCard(): string | null {
+    return this.watchTerm;
+  }
+
+  /**
+   * Check if a card name matches the current watch term
+   */
+  static isWatchCard(cardName: string): boolean {
+    if (!this.watchTerm) return false;
+    return cardName.toLowerCase().includes(this.watchTerm);
+  }
+
+  /**
+   * Log detailed information about a raw Scryfall card (before processing)
+   */
+  static logRawCard(card: ScryfallCard, stage: string = "Raw Scryfall Data"): void {
+    if (!this.isWatchCard(card.name)) return;
+
+    this.watchMatchCount++;
+    console.log(`\n🎯 WATCH CARD #${this.watchMatchCount} - ${stage}`);
+    console.log(`📋 Card: ${card.name}`);
+    console.log("📊 Raw Scryfall Data:");
+    console.log("   oracle_id:", card.oracle_id);
+    console.log("   name:", card.name);
+    console.log("   mana_cost:", card.mana_cost);
+    console.log("   cmc:", card.cmc);
+    console.log("   type_line:", card.type_line);
+    let oracleTextDisplay = "none";
+    if (card.oracle_text) {
+      oracleTextDisplay = card.oracle_text.length > 100
+        ? card.oracle_text.substring(0, 100) + "..."
+        : card.oracle_text;
+    }
+    console.log("   oracle_text:", oracleTextDisplay);
+    console.log("   colors:", card.colors);
+    console.log("   color_identity:", card.color_identity);
+    console.log("   rarity:", card.rarity);
+    console.log("   set:", card.set);
+    console.log("   legalities.brawl:", card.legalities?.brawl);
+    console.log("   games:", card.games);
+    console.log("   layout:", card.layout);
+    console.log("   card_faces:", card.card_faces ? `${card.card_faces.length} faces` : "none");
+  }
+
+  /**
+   * Log detailed information about a processed card (after transformation)
+   */
+  static logProcessedCard(card: ProcessedCard, stage: string = "Processed Card"): void {
+    if (!this.isWatchCard(card.name) && !this.isWatchCard(card.original_name)) return;
+
+    console.log(`\n🎯 WATCH CARD - ${stage}`);
+    console.log(`📋 Card: ${card.name || card.original_name}`);
+    console.log("📊 Processed Data:");
+    console.log("   oracle_id:", card.oracle_id);
+    console.log("   original_name:", card.original_name);
+    console.log("   name (display):", card.name);
+    console.log("   search_key:", card.search_key);
+    console.log("   mana_cost:", card.mana_cost);
+    console.log("   cmc:", card.cmc);
+    console.log("   type_line:", card.type_line);
+    let processedOracleTextDisplay = "none";
+    if (card.oracle_text) {
+      processedOracleTextDisplay = card.oracle_text.length > 100
+        ? card.oracle_text.substring(0, 100) + "..."
+        : card.oracle_text;
+    }
+    console.log("   oracle_text:", processedOracleTextDisplay);
+    console.log("   colors:", card.colors);
+    console.log("   color_identity:", card.color_identity);
+    console.log("   rarity:", card.rarity);
+    console.log("   set_code:", card.set_code);
+    console.log("   can_be_commander:", card.can_be_commander);
+    console.log("   can_be_companion:", card.can_be_companion);
+    console.log("   companion_restriction:", card.companion_restriction);
+    console.log("   arena_legal_sets:", card.arena_legal_sets);
+    console.log("   display_hints:", card.display_hints);
+  }
+
+  /**
+   * Log the complete transformation pipeline for a watch card
+   */
+  static logCardTransformation(rawCard: ScryfallCard, processedCard: ProcessedCard): void {
+    if (!this.isWatchCard(rawCard.name)) return;
+
+    console.log(`\n🔄 WATCH CARD - Complete Transformation`);
+    console.log(`📋 Card: ${rawCard.name}`);
+    console.log("\n📥 BEFORE (Raw Scryfall):");
+    console.log("   name:", rawCard.name);
+    console.log("   type_line:", rawCard.type_line);
+    console.log("   mana_cost:", rawCard.mana_cost);
+    console.log("   colors:", rawCard.colors);
+    console.log("   rarity:", rawCard.rarity);
+    console.log("   set:", rawCard.set);
+    console.log("   legalities.brawl:", rawCard.legalities?.brawl);
+
+    console.log("\n📤 AFTER (Processed):");
+    console.log("   original_name:", processedCard.original_name);
+    console.log("   name (display):", processedCard.name);
+    console.log("   search_key:", processedCard.search_key);
+    console.log("   type_line:", processedCard.type_line);
+    console.log("   mana_cost:", processedCard.mana_cost);
+    console.log("   colors:", processedCard.colors);
+    console.log("   rarity:", processedCard.rarity);
+    console.log("   set_code:", processedCard.set_code);
+    console.log("   can_be_commander:", processedCard.can_be_commander);
+    console.log("   can_be_companion:", processedCard.can_be_companion);
+
+    console.log("\n🔍 KEY TRANSFORMATIONS:");
+    if (rawCard.name !== processedCard.name) {
+      console.log(`   Name: "${rawCard.name}" → "${processedCard.name}"`);
+    }
+    if (rawCard.set !== processedCard.set_code) {
+      console.log(`   Set: "${rawCard.set}" → "${processedCard.set_code}"`);
+    }
+    console.log(`   Search Key: "${processedCard.search_key}"`);
+    console.log(`   Commander: ${processedCard.can_be_commander}`);
+    console.log(`   Companion: ${processedCard.can_be_companion}`);
   }
 }
