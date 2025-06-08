@@ -39,7 +39,7 @@ export default {
     'import.meta': {
       env: {
         VITE_SUPABASE_URL: 'https://cvkjluvuaunikkrrunxx.supabase.co',
-        VITE_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2a2psdXZ1YXVuaWtrcnJ1bnh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM1MzU2NzQsImV4cCI6MjA0OTExMTY3NH0.dogbananachevroletchevelle',
+        VITE_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2a2psdXZ1YXVuaWtrcnJ1bnh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg0NjU4MzcsImV4cCI6MjA2NDA0MTgzN30.XKTbl3w9g45AEKH-44-5USZaaOfkib3c-C6RRAxe-rQ',
       },
     },
   },
