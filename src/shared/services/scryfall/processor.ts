@@ -115,16 +115,18 @@ export class CardProcessor {
       .sort((a, b) => a.localeCompare(b));
 
     // Find the lowest rarity present in the cards in variants:  CardRarity.Mythic > CardRarity.Rare > CardRarity.Uncommon > CardRarity.Common
-    const rarityScore: Record<string, number> = {
-      [CardRarity.Mythic]: 4,
-      [CardRarity.Rare]: 3,
-      [CardRarity.Uncommon]: 2,
-      [CardRarity.Common]: 1
-    };
+    function getRarityScore(rarity: string) {
+      return {
+        [CardRarity.Mythic]: 4,
+        [CardRarity.Rare]: 3,
+        [CardRarity.Uncommon]: 2,
+        [CardRarity.Common]: 1
+      }[rarity] ?? 0;
+    }
     const lowestRarity = variants.reduce<Maybe<CardRarity>>((lowest, card) => {
       if (!card.rarity) return lowest;
       if (!lowest) return card.rarity as CardRarity;
-      return rarityScore[card.rarity] < rarityScore[lowest] ? card.rarity as CardRarity : lowest;
+      return getRarityScore(card.rarity) < getRarityScore(lowest) ? card.rarity as CardRarity : lowest;
     }, undefined as Maybe<CardRarity>);
 
     // Filter variants to only include that rarity
