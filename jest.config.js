@@ -13,7 +13,15 @@ export default {
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
       useESM: true,
-      tsconfig: 'tsconfig.test.json',
+      tsconfig: {
+        module: 'esnext',
+        target: 'es2022',
+        moduleResolution: 'node',
+        allowSyntheticDefaultImports: true,
+        esModuleInterop: true,
+        jsx: 'react-jsx',
+        types: ['jest', '@testing-library/jest-dom', 'node'],
+      },
     }],
   },
 
@@ -23,15 +31,15 @@ export default {
     '^gsap$': '<rootDir>/src/test/__mocks__/gsap.js',
     '^gsap/(.*)$': '<rootDir>/src/test/__mocks__/gsap.js',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
-    '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$': 'jest-transform-stub',
+    '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$': 'jest-transform-stub',
   },
 
   // Global setup for environment variables
   globals: {
     'import.meta': {
       env: {
-        VITE_SUPABASE_URL: 'https://test.supabase.co',
-        VITE_SUPABASE_ANON_KEY: 'test-anon-key',
+        VITE_SUPABASE_URL: 'https://cvkjluvuaunikkrrunxx.supabase.co',
+        VITE_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2a2psdXZ1YXVuaWtrcnJ1bnh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM1MzU2NzQsImV4cCI6MjA0OTExMTY3NH0.dogbananachevroletchevelle',
       },
     },
   },

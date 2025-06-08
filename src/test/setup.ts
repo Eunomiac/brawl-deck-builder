@@ -1,4 +1,5 @@
 // Jest setup file for MTG Brawl Deck Builder
+/// <reference path="../shared/types/global.d.ts" />
 import '@testing-library/jest-dom';
 
 // Mock window.matchMedia for responsive design tests
@@ -29,6 +30,17 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
   unobserve: jest.fn(),
   disconnect: jest.fn(),
 }));
+
+// Global assert function implementation using Node's console.assert
+global.assert = (condition: unknown, message?: string): asserts condition => {
+  if (!condition) {
+    throw new Error(message ?? 'Assertion failed');
+  }
+};
+
+// Initialize global utilities for tests
+import { initializeGlobals } from '../shared/utils/setup';
+initializeGlobals();
 
 // Suppress console warnings in tests unless explicitly testing them
 const originalConsoleWarn = console.warn;

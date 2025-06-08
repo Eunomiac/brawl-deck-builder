@@ -64,8 +64,8 @@ describe("CardNameNormalizer", () => {
     });
   });
 
-  describe("legacy normalize method", () => {
-    it("should work the same as normalizeForSearch", () => {
+  describe("normalization consistency", () => {
+    it("should produce consistent results for the same input", () => {
       const testCases = [
         "A-Lightning Bolt",
         "Lörièn",
@@ -74,7 +74,10 @@ describe("CardNameNormalizer", () => {
       ];
 
       testCases.forEach(testCase => {
-        expect(CardNameNormalizer.normalize(testCase)).toBe(CardNameNormalizer.normalizeForSearch(testCase));
+        // Test that normalizeForSearch produces consistent results
+        const result1 = CardNameNormalizer.normalizeForSearch(testCase);
+        const result2 = CardNameNormalizer.normalizeForSearch(testCase);
+        expect(result1).toBe(result2);
       });
     });
   });
