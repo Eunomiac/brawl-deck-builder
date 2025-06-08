@@ -11,7 +11,7 @@ const mockCardWithImage: DatabaseCard = {
   oracle_id: 'oracle-1',
   original_name: 'Lightning Bolt',
   name: 'Lightning Bolt',
-  search_key: 'lightning bolt',
+  search_key: 'lightningbolt',
   mana_cost: '{R}',
   cmc: 1,
   type_line: 'Instant',
