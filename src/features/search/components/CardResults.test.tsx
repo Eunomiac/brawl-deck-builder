@@ -1,5 +1,4 @@
 // MTG Brawl Deck Builder - Card Results Component Tests
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { CardResults } from './CardResults';
 import type { Tables } from '../../../services/supabase/types';
@@ -59,7 +58,7 @@ const mockCardWithNulls: DatabaseCard = {
   id: 'test-card-null',
   oracle_id: 'oracle-null',
   original_name: null,
-  name: null,
+  name: "",
   search_key: null,
   mana_cost: null,
   cmc: null,

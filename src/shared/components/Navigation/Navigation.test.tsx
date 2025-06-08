@@ -1,5 +1,4 @@
 // MTG Brawl Deck Builder - Navigation Component Tests
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Navigation } from './Navigation';
 
@@ -96,7 +95,7 @@ describe('Navigation Component', () => {
 
       const searchLink = screen.getByText('Card Search').closest('a');
       const deckBuilderLink = screen.getByText('Deck Builder').closest('a');
-      
+
       expect(searchLink).not.toHaveClass('active');
       expect(deckBuilderLink).not.toHaveClass('active');
     });
@@ -188,7 +187,7 @@ describe('Navigation Component', () => {
 
     it('should handle single tab', () => {
       const singleTab = [{ id: 'only', label: 'Only Tab' }];
-      
+
       render(
         <Navigation
           activeTab="only"

@@ -1,5 +1,4 @@
 // MTG Brawl Deck Builder - Card Display Component Tests
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { CardDisplay } from './CardDisplay';
 import type { Tables } from '../../../services/supabase/types';
@@ -54,7 +53,7 @@ const mockCardWithNulls: DatabaseCard = {
   id: 'test-card-null',
   oracle_id: 'oracle-null',
   original_name: null,
-  name: null,
+  name: "",
   search_key: null,
   mana_cost: null,
   cmc: null,
@@ -78,7 +77,7 @@ describe('CardDisplay Component', () => {
   describe('Rendering', () => {
     it('should render the component', () => {
       render(<CardDisplay card={mockCardWithImage} />);
-      
+
       expect(screen.getByText('Card Found')).toBeInTheDocument();
       expect(screen.getByText('Lightning Bolt')).toBeInTheDocument();
     });
@@ -147,7 +146,7 @@ describe('CardDisplay Component', () => {
       render(<CardDisplay card={mockCardWithImage} />);
 
       const image = screen.getByAltText('Lightning Bolt');
-      
+
       // Simulate image error
       fireEvent.error(image);
 
@@ -221,7 +220,7 @@ describe('CardDisplay Component', () => {
 
     it('should display companion status correctly', () => {
       render(<CardDisplay card={mockCardWithImage} />);
-      
+
       // Should show "No" for companion (can_be_companion: false)
       const companionLabels = screen.getAllByText('Companion:');
       expect(companionLabels[0].parentElement).toHaveTextContent('No');
