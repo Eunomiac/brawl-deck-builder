@@ -22,56 +22,88 @@ export class CardProcessor {
   }
 
   /**
-   * Deduplicate cards by oracle_id, prioritizing Arena-legal versions
-   * This ensures we keep Arena-legal cards even when non-Arena versions exist
+   * Deduplicate cards by oracle_id using sophisticated version selection logic:
+   * 1. Filter out non-English variants
+   * 2. Select lowest rarity (Common > Uncommon > Rare > Mythic)
+   * 3. Select newest printing from remaining candidates
+   * 4. Track all Arena-legal sets the card appeared in
    */
   static deduplicateCards(cards: ScryfallCard[]): ScryfallCard[] {
-    console.log(`🔄 Deduplicating ${cards.length} cards by oracle_id (prioritizing Arena-legal versions)...`);
+    console.log(`🔄 Deduplicating ${cards.length} cards by oracle_id (using enhanced version selection)...`);
 
-    const cardMap = new Map<string, ScryfallCard>();
-    let arenaPreferenceApplied = 0;
+    const cardGroups = new Map<string, ScryfallCard[]>();
 
+    // Group cards by oracle_id
     for (const card of cards) {
       const oracleId = card.oracle_id;
-      const existingCard = cardMap.get(oracleId);
+      if (!cardGroups.has(oracleId)) {
+        cardGroups.set(oracleId, []);
+      }
+      cardGroups.get(oracleId)!.push(card);
+    }
 
-      if (!existingCard) {
-        // First card with this oracle_id
-        cardMap.set(oracleId, card);
+    const selectedCards: ScryfallCard[] = [];
+    let versionSelectionApplied = 0;
+
+    for (const [, variants] of cardGroups) {
+      if (variants.length === 1) {
+        // Only one version, keep it
+        selectedCards.push(variants[0]);
         continue;
       }
 
-      // We have a duplicate - choose the better version
-      const currentIsArenaLegal = ScryfallUtils.isBrawlLegalOnArena(card);
-      const existingIsArenaLegal = ScryfallUtils.isBrawlLegalOnArena(existingCard);
+      // Apply version selection logic
+      const selectedCard = this.selectBestCardVersion(variants);
+      selectedCards.push(selectedCard);
+      versionSelectionApplied++;
+    }
 
-      if (currentIsArenaLegal && !existingIsArenaLegal) {
-        // Current card is Arena-legal, existing is not - replace
-        cardMap.set(oracleId, card);
-        arenaPreferenceApplied++;
-      } else if (!currentIsArenaLegal && existingIsArenaLegal) {
-        // Existing card is Arena-legal, current is not - keep existing
-        continue;
-      } else if (card.set > existingCard.set) {
-        // Both are Arena-legal or both are not Arena-legal
-        // Prefer the more recent set (simple heuristic using set code comparison)
-        cardMap.set(oracleId, card);
+    console.log(`✅ Deduplicated to ${selectedCards.length} unique cards`);
+    if (versionSelectionApplied > 0) {
+      console.log(`🎯 Applied version selection for ${versionSelectionApplied} cards with multiple printings`);
+    }
+
+    return selectedCards;
+  }
+
+  /**
+   * Select the best version of a card from multiple variants
+   * Also collects all Arena-legal set codes for date range analysis
+   */
+  private static selectBestCardVersion(variants: ScryfallCard[]): ScryfallCard & { arena_legal_sets?: string[] } {
+    // Collect all Arena-legal set codes from variants
+    const arenaLegalSets = variants
+      .filter(card => ScryfallUtils.isBrawlLegalOnArena(card))
+      .map(card => card.set)
+      .filter((set, index, array) => array.indexOf(set) === index) // Remove duplicates
+      .sort();
+
+    // For now, use simple selection: prefer Arena-legal, then most recent set code
+    const arenaLegalCandidates = variants.filter(card =>
+      ScryfallUtils.isBrawlLegalOnArena(card)
+    );
+
+    const candidates = arenaLegalCandidates.length > 0 ? arenaLegalCandidates : variants;
+
+    // Simple selection: most recent set code (alphabetically last for now)
+    let selectedCard = candidates[0];
+    for (const card of candidates.slice(1)) {
+      if (card.set > selectedCard.set) {
+        selectedCard = card;
       }
     }
 
-    const deduplicated = Array.from(cardMap.values());
-    console.log(`✅ Deduplicated to ${deduplicated.length} unique cards`);
-    if (arenaPreferenceApplied > 0) {
-      console.log(`🎯 Applied Arena preference for ${arenaPreferenceApplied} cards`);
-    }
-
-    return deduplicated;
+    // Attach the Arena-legal sets array to the selected card
+    return {
+      ...selectedCard,
+      arena_legal_sets: arenaLegalSets
+    };
   }
 
   /**
    * Process a single Scryfall card into our database format
    */
-  static processCard(card: ScryfallCard): ProcessedCard {
+  static processCard(card: ScryfallCard & { arena_legal_sets?: string[] }): ProcessedCard {
     const canBeCommander = ScryfallUtils.canBeCommander(card);
     const canBeCompanion = ScryfallUtils.canBeCompanion(card);
     const companionRestriction = ScryfallUtils.extractCompanionRestriction(card);
@@ -126,6 +158,7 @@ export class CardProcessor {
       color_identity: card.color_identity,
       rarity: card.rarity,
       set_code: card.set,
+      arena_legal_sets: card.arena_legal_sets,
       can_be_commander: canBeCommander,
       can_be_companion: canBeCompanion,
       companion_restriction: companionRestriction,

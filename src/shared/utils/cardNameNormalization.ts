@@ -26,13 +26,20 @@ export class CardNameNormalizer {
     // =================================================================
     // Normalize for readability but keep human-friendly
 
+
+    // Standardize slash separators for split cards, and allow at most two parts
+    // (Fire / Ice, Fire///Ice, Fire // Ice → Fire // Ice)
+    if (normalized.includes('/')) {
+      return normalized
+        .split(/\s*\/[\s/]*\s*/)
+        .slice(0,2)
+        .map((part) => this.normalizeForDisplay(part))
+        .join(' // ');
+    }
+
     // Remove Alchemy prefixes from both halves of double-faced cards
     // (A-Front Name // A-Back Name → Front Name // Back Name)
     normalized = normalized.replace(/^A-/, '').replace(/ \/\/ A-/g, ' // ');
-
-    // Standardize slash separators for split cards
-    // (Fire / Ice, Fire///Ice, Fire // Ice → Fire // Ice)
-    normalized = normalized.replace(/\s*\/+\s*/g, ' // ');
 
     // Handle specific character replacements FIRST (before NFD decomposition)
     // Most characters get simple one-for-one swaps to their natural Western equivalent

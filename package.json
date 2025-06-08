@@ -19,6 +19,7 @@
     "test:ci-keep": "jest --coverage --watchAll=false --passWithNoTests && pause"
   },
   "dependencies": {
+    "@leeoniya/ufuzzy": "^1.0.18",
     "@supabase/supabase-js": "^2.50.0",
     "gsap": "^3.13.0",
     "react": "^19.1.0",

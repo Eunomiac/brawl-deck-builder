@@ -124,6 +124,7 @@ export interface ProcessedCard {
   color_identity?: string[];
   rarity: string;
   set_code: string;
+  arena_legal_sets?: string[]; // All Arena-legal sets this card appeared in
   can_be_commander: boolean;
   can_be_companion: boolean;
   companion_restriction?: string;
