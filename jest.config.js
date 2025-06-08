@@ -93,6 +93,10 @@ export default {
     '!src/shared/services/scryfall/debug.ts', // Debug utilities - not production code
     '!src/features/collection/components/CardImportButton.tsx', // UI component with real-time progress
     '!src/shared/hooks/useCardImport.ts', // React hook with complex state management
+    // Search integration files excluded due to complex database interactions
+    // requiring integration testing rather than unit testing
+    '!src/shared/services/search/CardSearchService.ts', // Database service with Supabase queries
+    '!src/features/search/components/CardSearch.tsx', // React component with complex async state management
   ],
 
   // Coverage thresholds - 80% for new code, 20% global for existing code
