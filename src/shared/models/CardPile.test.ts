@@ -1,7 +1,59 @@
 // MTG Brawl Deck Builder - CardPile Tests
-import { BasicCardPile } from "./CardPile";
+import { CardPile, BasicCardPile, type CardValidationResult } from "./CardPile";
 import type { ProcessedCard } from "../types/mtg";
 import { MTGColor } from "../types/mtg";
+
+// Test implementation that can simulate validation failures
+class TestCardPile extends CardPile {
+  private shouldFailAddition = false;
+  private shouldFailRemoval = false;
+  private additionError = "Addition not allowed";
+  private removalError = "Removal not allowed";
+
+  constructor(name: string, cards: ProcessedCard[] = [], description?: string) {
+    super(name, cards, description);
+  }
+
+  setAdditionFailure(shouldFail: boolean, error = "Addition not allowed"): void {
+    this.shouldFailAddition = shouldFail;
+    this.additionError = error;
+  }
+
+  setRemovalFailure(shouldFail: boolean, error = "Removal not allowed"): void {
+    this.shouldFailRemoval = shouldFail;
+    this.removalError = error;
+  }
+
+  protected validateCardAddition(_card: ProcessedCard): CardValidationResult {
+    if (this.shouldFailAddition) {
+      return {
+        isValid: false,
+        errors: [this.additionError],
+        warnings: [],
+      };
+    }
+    return {
+      isValid: true,
+      errors: [],
+      warnings: [],
+    };
+  }
+
+  protected validateCardRemoval(_card: ProcessedCard): CardValidationResult {
+    if (this.shouldFailRemoval) {
+      return {
+        isValid: false,
+        errors: [this.removalError],
+        warnings: [],
+      };
+    }
+    return {
+      isValid: true,
+      errors: [],
+      warnings: [],
+    };
+  }
+}
 
 // Mock card data for testing
 const createMockCard = (overrides: Partial<ProcessedCard> = {}): ProcessedCard => ({
@@ -272,6 +324,173 @@ describe("CardPile", () => {
 
       const violations = cardPile.getColorIdentityViolations([MTGColor.Red]);
       expect(violations).toHaveLength(2); // Blue instant + multicolor card
+    });
+  });
+
+  describe("Validation Failure Paths", () => {
+    let testPile: TestCardPile;
+
+    beforeEach(() => {
+      testPile = new TestCardPile("Test Validation Pile");
+    });
+
+    it("should handle validation failure on card addition", () => {
+      testPile.setAdditionFailure(true, "Custom addition error");
+
+      const result = testPile.addCard(mockRedCreature, { validateFormat: true });
+
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toEqual(["Custom addition error"]);
+      expect(testPile.cardCount).toBe(0);
+    });
+
+    it("should handle validation failure on card removal", () => {
+      // First add a card successfully
+      testPile.addCard(mockRedCreature);
+      expect(testPile.cardCount).toBe(1);
+
+      // Then set removal to fail
+      testPile.setRemovalFailure(true, "Custom removal error");
+
+      const result = testPile.removeCard(mockRedCreature);
+
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toEqual(["Custom removal error"]);
+      expect(testPile.cardCount).toBe(1); // Card should still be there
+    });
+
+    it("should handle validation failure in removeCards", () => {
+      // Add multiple cards
+      testPile.addCards([mockRedCreature, mockBlueInstant]);
+      expect(testPile.cardCount).toBe(2);
+
+      // Set removal to fail
+      testPile.setRemovalFailure(true, "Batch removal error");
+
+      const result = testPile.removeCards([mockRedCreature, mockBlueInstant]);
+
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toEqual(["Batch removal error"]);
+      expect(testPile.cardCount).toBe(2); // Both cards should still be there
+    });
+
+    it("should skip validation when skipValidation is true", () => {
+      testPile.addCard(mockRedCreature);
+      testPile.setRemovalFailure(true, "Should not see this error");
+
+      const result = testPile.removeCard(mockRedCreature, { skipValidation: true });
+
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toEqual([]);
+      expect(testPile.cardCount).toBe(0);
+    });
+
+    it("should remove all copies when removeAll is true", () => {
+      // Add multiple copies of the same card
+      testPile.addCard(mockRedCreature);
+      testPile.addCard(mockRedCreature, { allowDuplicates: true });
+      testPile.addCard(mockRedCreature, { allowDuplicates: true });
+      expect(testPile.cardCount).toBe(3);
+
+      const result = testPile.removeCard(mockRedCreature, { removeAll: true });
+
+      expect(result.isValid).toBe(true);
+      expect(testPile.cardCount).toBe(0);
+    });
+
+    it("should handle card not found in removeCard", () => {
+      // Try to remove a card that doesn't exist
+      const result = testPile.removeCard(mockRedCreature);
+
+      expect(result.isValid).toBe(true); // Should succeed even if card not found
+      expect(testPile.cardCount).toBe(0);
+    });
+  });
+
+  describe("Edge Cases", () => {
+    let cardPile: BasicCardPile;
+
+    beforeEach(() => {
+      cardPile = new BasicCardPile("Edge Case Pile");
+    });
+
+    it("should handle empty pile analysis methods", () => {
+      expect(cardPile.averageCMC).toBe(0);
+      expect(cardPile.newestIncludedSet).toBeUndefined();
+      expect(cardPile.includesDuplicates).toBe(false);
+      expect(cardPile.getDuplicates()).toEqual([]);
+      expect(cardPile.colorIdentity).toEqual([]);
+    });
+
+    it("should handle cards with null/undefined properties", () => {
+      const cardWithNulls = createMockCard({
+        oracle_id: "null-card",
+        color_identity: null as any,
+        type_line: null as any,
+        cmc: null as any,
+        name: null as any,
+        search_key: null as any,
+      });
+
+      cardPile.addCard(cardWithNulls);
+
+      // Should not crash on analysis
+      const manaDistribution = cardPile.manaDistribution;
+      expect(manaDistribution.colorless).toBe(1);
+
+      const typeDistribution = cardPile.typeDistribution;
+      expect(typeDistribution.other).toBe(1);
+
+      expect(cardPile.averageCMC).toBe(0);
+      expect(cardPile.colorIdentity).toEqual([]);
+    });
+
+    it("should handle search with null name and search_key", () => {
+      const cardWithNulls = createMockCard({
+        oracle_id: "null-search-card",
+        name: null as any,
+        search_key: null as any,
+      });
+
+      cardPile.addCard(cardWithNulls);
+      const results = cardPile.searchByName("test");
+      expect(results).toEqual([]);
+    });
+
+    it("should handle getCardsByColorIdentity with exact match logic", () => {
+      // Add cards with different color identities
+      cardPile.addCards([mockRedCreature, mockMulticolorCard, mockColorlessArtifact]);
+
+      // getCardsByColorIdentity returns cards where ALL card colors are in the allowed list
+      // So a red card matches [Red] and [Red, Blue], but multicolor doesn't match [Red] only
+      const redOnlyCards = cardPile.getCardsByColorIdentity([MTGColor.Red]);
+      expect(redOnlyCards).toHaveLength(2); // Red creature + colorless artifact (empty color identity matches any list)
+
+      const multiColorCards = cardPile.getCardsByColorIdentity([MTGColor.Red, MTGColor.Blue]);
+      expect(multiColorCards).toHaveLength(3); // All cards match since all their colors are in the allowed list
+
+      const colorlessCards = cardPile.getCardsByColorIdentity([]);
+      expect(colorlessCards).toHaveLength(1); // Only the colorless artifact
+    });
+
+    it("should handle mana distribution with unknown colors", () => {
+      const cardWithUnknownColor = createMockCard({
+        oracle_id: "unknown-color-card",
+        color_identity: ["X" as any], // Unknown color
+      });
+
+      cardPile.addCard(cardWithUnknownColor);
+      const distribution = cardPile.manaDistribution;
+
+      // Unknown colors don't match any of the switch cases, so nothing gets incremented
+      // The card has length 1 but doesn't match any case, so no counter is incremented
+      expect(distribution.white).toBe(0);
+      expect(distribution.blue).toBe(0);
+      expect(distribution.black).toBe(0);
+      expect(distribution.red).toBe(0);
+      expect(distribution.green).toBe(0);
+      expect(distribution.colorless).toBe(0);
+      expect(distribution.multicolor).toBe(0); // Nothing gets incremented for unknown single colors
     });
   });
 });

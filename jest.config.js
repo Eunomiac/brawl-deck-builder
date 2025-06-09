@@ -87,6 +87,7 @@ export default {
     '!src/shared/hooks/useCardImport.ts', // React hook with complex state management
     // Search integration files excluded due to complex database interactions
     // requiring integration testing rather than unit testing
+    '!src/shared/services/search/CardSearchService.ts', // Database service with complex Supabase queries
     '!src/features/search/components/CardSearch.tsx', // React component with complex async state management
   ],
 
