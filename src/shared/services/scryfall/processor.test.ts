@@ -21,6 +21,7 @@ jest.mock("./api", () => ({
     canBeCompanion: jest.fn(),
     extractCompanionRestriction: jest.fn(),
     getCardSearchTerms: jest.fn(),
+    isDefaultVersion: jest.fn(),
   }
 }));
 
@@ -54,6 +55,7 @@ const mockSetsDatabaseService = SetsDatabaseService as jest.Mocked<typeof SetsDa
     mockScryfallUtils.getCardSearchTerms.mockReturnValue([
       { search_term: "test", is_primary: true }
     ]);
+    mockScryfallUtils.isDefaultVersion.mockReturnValue(true);
   });
 
   describe("filterValidCards", () => {
@@ -114,19 +116,31 @@ const mockSetsDatabaseService = SetsDatabaseService as jest.Mocked<typeof SetsDa
     it("should keep the most recent printing based on set code", async () => {
       const cards: Partial<ScryfallCard>[] = [
         {
+          id: "scryfall-id-1",
           oracle_id: "same-oracle-id",
           name: "Lightning Bolt",
-          set: "lea" // Alpha (older)
+          set: "lea", // Alpha (older)
+          rarity: "common",
+          nonfoil: true,
+          border_color: "black"
         },
         {
+          id: "scryfall-id-2",
           oracle_id: "same-oracle-id",
           name: "Lightning Bolt",
-          set: "m21" // Core 2021 (newer)
+          set: "m21", // Core 2021 (newer)
+          rarity: "common",
+          nonfoil: true,
+          border_color: "black"
         },
         {
+          id: "scryfall-id-3",
           oracle_id: "different-oracle-id",
           name: "Counterspell",
-          set: "lea"
+          set: "lea",
+          rarity: "common",
+          nonfoil: true,
+          border_color: "black"
         }
       ];
 
@@ -201,6 +215,7 @@ const mockSetsDatabaseService = SetsDatabaseService as jest.Mocked<typeof SetsDa
   describe("processCard", () => {
     it("should process a basic card correctly", () => {
       const card: Partial<ScryfallCard> = {
+        id: "test-scryfall-id",
         oracle_id: "test-oracle-id",
         name: "Lightning Bolt",
         mana_cost: "{R}",
@@ -234,6 +249,7 @@ const mockSetsDatabaseService = SetsDatabaseService as jest.Mocked<typeof SetsDa
 
       expect(result).toEqual({
         oracle_id: "test-oracle-id",
+        scryfall_id: "test-scryfall-id",
         original_name: "Lightning Bolt",
         name: "Lightning Bolt",
         search_key: "lightningbolt",

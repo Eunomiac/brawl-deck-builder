@@ -84,12 +84,19 @@ export interface ScryfallCard {
     image_uris?: ScryfallImageUris;
   }>;
 
+  // Properties for distinguishing showcase frames, foils, etc
+  arena_id?: number;
+  nonfoil: boolean;
+  border_color: string;
+  frame_effects?: string[];
+  full_art: boolean;
+  textless: boolean;
+
   // Additional properties we might need
   keywords?: string[];
   produced_mana?: string[];
   reserved?: boolean;
   digital?: boolean;
-  arena_id?: number;
   mtgo_id?: number;
 }
 

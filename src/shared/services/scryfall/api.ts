@@ -265,6 +265,26 @@ export class ScryfallUtils {
   }
 
   /**
+   * Check if card is the "default" version of the card to represent
+   *
+   * 'Semi-official' Scryfall search query used for this identification:
+   *    not:showcase not:extendedart -border:borderless not:fracturefoil not:etched not:stamped not:datestamped not:fullart not:surgefoil not:galaxyfoil -st:masterpiece -frame:future -frame:colorshifted not:playtest -frame:inverted -border:yellow
+   */
+  static isDefaultVersion(card: ScryfallCard): boolean {
+    return Boolean(
+      card.arena_id &&
+      card.nonfoil &&
+      !["yellow", "borderless"].includes(card.border_color) &&
+      !card.frame_effects?.includes("showcase") &&
+      !card.frame_effects?.includes("inverted") &&
+      !card.frame_effects?.includes("future") &&
+      !card.frame_effects?.includes("colorshifted") &&
+      !card.full_art &&
+      !card.textless
+    );
+  }
+
+  /**
    * Check if a card can be a Brawl commander
    */
   static canBeCommander(card: ScryfallCard): boolean {

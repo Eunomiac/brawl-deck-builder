@@ -135,7 +135,13 @@ export class CardProcessor {
     }, undefined as Maybe<CardRarity>);
 
     // Filter variants to only include that rarity
-    const filteredVariants = variants.filter(card => card.rarity === lowestRarity);
+    let filteredVariants = variants.filter(card => card.rarity === lowestRarity);
+
+    // Filter to only include default versions unless none are available
+    const defaultVariants = filteredVariants.filter(card => ScryfallUtils.isDefaultVersion(card));
+    if (defaultVariants.length) {
+      filteredVariants = defaultVariants;
+    }
 
     // Select the most recently released version using set release dates
     let selectedCard = filteredVariants[0];
