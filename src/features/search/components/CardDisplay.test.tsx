@@ -9,6 +9,7 @@ type DatabaseCard = Tables<"cards">;
 const mockCardWithImage: DatabaseCard = {
   id: 'test-card-1',
   oracle_id: 'oracle-1',
+  scryfall_id: 'scryfall-1',
   original_name: 'Lightning Bolt',
   name: 'Lightning Bolt',
   search_key: 'lightningbolt',
@@ -52,6 +53,7 @@ const mockCardWithCompanion: DatabaseCard = {
 const mockCardWithNulls: DatabaseCard = {
   id: 'test-card-null',
   oracle_id: 'oracle-null',
+  scryfall_id: 'scryfall-null',
   original_name: null,
   name: "",
   search_key: null,

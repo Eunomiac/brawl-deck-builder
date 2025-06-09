@@ -13,6 +13,7 @@ jest.mock("../../../services/supabase/client", () => ({
             data: [
               {
                 oracle_id: "test-1",
+                scryfall_id: "scryfall-test-1",
                 name: "Test Card 1",
                 rarity: "common",
                 cmc: 2,
@@ -23,6 +24,7 @@ jest.mock("../../../services/supabase/client", () => ({
               },
               {
                 oracle_id: "test-2",
+                scryfall_id: "scryfall-test-2",
                 name: "Test Commander",
                 rarity: "mythic",
                 cmc: 5,

@@ -58,6 +58,7 @@ class TestCardPile extends CardPile {
 // Mock card data for testing
 const createMockCard = (overrides: Partial<ProcessedCard> = {}): ProcessedCard => ({
   oracle_id: "test-oracle-id",
+  scryfall_id: "test-scryfall-id",
   original_name: "Test Card",
   name: "Test Card",
   search_key: "testcard",

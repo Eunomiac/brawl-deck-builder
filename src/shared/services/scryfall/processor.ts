@@ -206,6 +206,7 @@ export class CardProcessor {
 
     const processedCard: ProcessedCard = {
       oracle_id: card.oracle_id,
+      scryfall_id: card.id,
       original_name: originalName,
       name: displayName,
       search_key: searchKey,

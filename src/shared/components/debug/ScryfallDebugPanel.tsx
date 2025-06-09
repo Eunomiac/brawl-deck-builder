@@ -50,7 +50,7 @@ export const ScryfallDebugPanel: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Database query state
-  const [sqlSelect, setSqlSelect] = useState("*");
+  const [sqlSelect, setSqlSelect] = useState("oracle_id,scryfall_id,name,rarity,cmc");
   const [sqlFilter, setSqlFilter] = useState("");
   const [dbQueryResult, setDbQueryResult] = useState<DatabaseQueryResult | null>(null);
 
@@ -454,6 +454,8 @@ ${Object.entries(summary.bySets)
   };
 
   const handleOracleIdQuery = async () => {
+    console.log("🔍 Oracle ID Query started with ID:", scryfallId);
+
     if (!scryfallId.trim()) {
       addResult({
         type: "error",
@@ -465,8 +467,11 @@ ${Object.entries(summary.bySets)
 
     setIsLoading(true);
     try {
+      const url = `https://api.scryfall.com/cards/search?q=oracle_id:${scryfallId.trim()}+game:arena`;
+      console.log("🔍 Making Oracle ID request to:", url);
+
       // Query Scryfall API for all printings of this oracle ID
-      const response = await fetch(`https://api.scryfall.com/cards/search?q=oracle_id:${scryfallId.trim()}+game:arena`);
+      const response = await fetch(url);
 
       if (!response.ok) {
         throw new Error(`Scryfall API error: ${response.status} ${response.statusText}`);
@@ -509,6 +514,8 @@ ${Object.entries(summary.bySets)
   };
 
   const handleScryfallIdQuery = async () => {
+    console.log("🔮 Scryfall ID Query started with ID:", scryfallId);
+
     if (!scryfallId.trim()) {
       addResult({
         type: "error",
@@ -520,14 +527,19 @@ ${Object.entries(summary.bySets)
 
     setIsLoading(true);
     try {
+      const url = `https://api.scryfall.com/cards/${scryfallId.trim()}`;
+      console.log("🔮 Making request to:", url);
+
       // Query Scryfall API for this specific card ID
-      const response = await fetch(`https://api.scryfall.com/cards/${scryfallId.trim()}`);
+      const response = await fetch(url);
+      console.log("🔮 Response status:", response.status, response.statusText);
 
       if (!response.ok) {
         throw new Error(`Scryfall API error: ${response.status} ${response.statusText}`);
       }
 
       const scryfallData = await response.json();
+      console.log("🔮 Scryfall data received:", scryfallData);
 
       const queryResult: DatabaseQueryResult = {
         data: [scryfallData], // Single card result
@@ -537,6 +549,7 @@ ${Object.entries(summary.bySets)
         timestamp: new Date()
       };
 
+      console.log("🔮 Setting query result:", queryResult);
       setScryfallQueryResult(queryResult);
 
       if (scryfallData.object === "error") {
@@ -553,6 +566,7 @@ ${Object.entries(summary.bySets)
         });
       }
     } catch (err) {
+      console.error("🔮 Scryfall ID Query error:", err);
       addResult({
         type: "error",
         title: "Scryfall ID Query Error",
@@ -584,7 +598,7 @@ ${Object.entries(summary.bySets)
               <div className="form-row">
                 <input
                   type="text"
-                  placeholder="Columns (e.g., *, name,rarity,cmc)"
+                  placeholder="Columns (e.g., oracle_id,scryfall_id,name,rarity,cmc)"
                   value={sqlSelect}
                   onChange={(e) => setSqlSelect(e.target.value)}
                   className="debug-input"
@@ -861,9 +875,9 @@ ${Object.entries(summary.bySets)
                 </button>
               </div>
               <div className="form-helper">
-                <strong>Oracle ID:</strong> Finds all Arena-playable printings of a card
+                <strong>Oracle ID:</strong> Finds all Arena-playable printings of a card (use oracle_id from database)
                 <br />
-                <strong>ID:</strong> Finds specific card by Scryfall ID
+                <strong>ID:</strong> Finds specific card by Scryfall ID (use scryfall_id from database)
               </div>
             </div>
           </div>

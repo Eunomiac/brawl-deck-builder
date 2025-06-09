@@ -87,6 +87,7 @@ export class CardDatabaseService {
         // Prepare card data for insertion
         const cardInserts: TablesInsert<"cards">[] = batch.map(card => ({
           oracle_id: card.oracle_id,
+          scryfall_id: card.scryfall_id,
           original_name: card.original_name,
           name: card.name,
           search_key: card.search_key,

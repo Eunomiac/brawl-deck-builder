@@ -8,6 +8,7 @@ import type { ScryfallCard, ProcessedCard } from "../../types/mtg";
 // Database card type (what we get from Supabase)
 type DatabaseCard = {
   oracle_id: string | null;
+  scryfall_id: string | null;
   name: string | null;
   mana_cost: string | null;
   cmc: number | null;

@@ -139,6 +139,7 @@ export interface ScryfallSet {
 export interface ProcessedCard {
   // Database fields
   oracle_id: string;
+  scryfall_id: string;
   original_name: string;
   name: string;
   search_key: string;

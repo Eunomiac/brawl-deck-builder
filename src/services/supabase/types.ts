@@ -60,6 +60,7 @@ export type Database = {
           oracle_text: string | null
           original_name: string | null
           rarity: string | null
+          scryfall_id: string | null
           scryfall_uri: string | null
           search_key: string | null
           set_code: string | null
@@ -83,6 +84,7 @@ export type Database = {
           oracle_text?: string | null
           original_name?: string | null
           rarity?: string | null
+          scryfall_id?: string | null
           scryfall_uri?: string | null
           search_key?: string | null
           set_code?: string | null
@@ -106,6 +108,7 @@ export type Database = {
           oracle_text?: string | null
           original_name?: string | null
           rarity?: string | null
+          scryfall_id?: string | null
           scryfall_uri?: string | null
           search_key?: string | null
           set_code?: string | null
