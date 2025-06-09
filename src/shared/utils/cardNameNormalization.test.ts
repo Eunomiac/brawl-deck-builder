@@ -82,6 +82,103 @@ describe("CardNameNormalizer", () => {
     });
   });
 
+  describe("normalize (legacy method)", () => {
+    it("should use normalizeForSearch by default", () => {
+      const testName = "A-Teferi's Protection";
+      const searchResult = CardNameNormalizer.normalizeForSearch(testName);
+      const normalizeResult = CardNameNormalizer.normalize(testName);
+
+      expect(normalizeResult).toBe(searchResult);
+    });
+
+    it("should handle empty strings", () => {
+      expect(CardNameNormalizer.normalize("")).toBe("");
+    });
+  });
+
+  describe("wasNormalized", () => {
+    it("should return true when names differ", () => {
+      const original = "A-Teferi's Protection";
+      const normalized = "Teferi's Protection";
+
+      expect(CardNameNormalizer.wasNormalized(original, normalized)).toBe(true);
+    });
+
+    it("should return false when names are the same", () => {
+      const name = "Lightning Bolt";
+
+      expect(CardNameNormalizer.wasNormalized(name, name)).toBe(false);
+    });
+  });
+
+  describe("getModificationInfo", () => {
+    it("should detect Alchemy prefix", () => {
+      const result = CardNameNormalizer.getModificationInfo("A-Lightning Bolt");
+
+      expect(result.hadAlchemyPrefix).toBe(true);
+      expect(result.normalizedName).toBe("lightningbolt");
+    });
+
+    it("should detect special characters", () => {
+      const result = CardNameNormalizer.getModificationInfo("Teferi's Protection");
+
+      expect(result.hadSpecialCharacters).toBe(false); // apostrophe is not in the special chars regex
+      expect(result.hadAlchemyPrefix).toBe(false);
+    });
+
+    it("should detect special accented characters", () => {
+      const result = CardNameNormalizer.getModificationInfo("Séance");
+
+      expect(result.hadSpecialCharacters).toBe(true);
+      expect(result.normalizedName).toBe("seance");
+    });
+
+    it("should detect non-standard slashes", () => {
+      const result = CardNameNormalizer.getModificationInfo("Fire/Ice");
+
+      expect(result.hadNonStandardSlashes).toBe(true);
+      expect(result.hadAlchemyPrefix).toBe(false);
+    });
+
+    it("should not detect standard double slashes", () => {
+      const result = CardNameNormalizer.getModificationInfo("Fire // Ice");
+
+      expect(result.hadNonStandardSlashes).toBe(false);
+    });
+
+    it("should detect extra whitespace", () => {
+      const result = CardNameNormalizer.getModificationInfo("Lightning  Bolt");
+
+      expect(result.hadExtraWhitespace).toBe(true);
+    });
+
+    it("should detect leading/trailing whitespace", () => {
+      const result = CardNameNormalizer.getModificationInfo(" Lightning Bolt ");
+
+      expect(result.hadExtraWhitespace).toBe(true);
+    });
+
+    it("should handle cards with no modifications", () => {
+      const result = CardNameNormalizer.getModificationInfo("Lightning Bolt");
+
+      expect(result).toEqual({
+        hadAlchemyPrefix: false,
+        hadSpecialCharacters: false,
+        hadNonStandardSlashes: false,
+        hadExtraWhitespace: false,
+        normalizedName: "lightningbolt",
+      });
+    });
+
+    it("should handle cards with multiple modifications", () => {
+      const result = CardNameNormalizer.getModificationInfo("A-Teferi's  Protection");
+
+      expect(result.hadAlchemyPrefix).toBe(true);
+      expect(result.hadExtraWhitespace).toBe(true);
+      expect(result.normalizedName).toBe("teferisprotection");
+    });
+  });
+
   // Note: validateNormalization method would be useful for detecting collisions
   // but is not currently implemented. This would be valuable for import validation.
 });
