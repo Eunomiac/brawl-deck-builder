@@ -5,6 +5,7 @@ import type { ScryfallCard, ProcessedCard } from "../../types/mtg";
 import { ScryfallUtils } from "./api";
 import { CardNameNormalizer } from "../../utils/cardNameNormalization";
 import { ScryfallDebugger } from "./debug";
+import { SetsDatabaseService } from "../sets/database";
 import { CardRarity } from "../../utils/enums";
 
 /**
@@ -27,9 +28,11 @@ export class CardProcessor {
     return filtered;
   }
 
+
+
   /**
-   * Extract set release dates from filtered cards
-   * This builds a mapping of set codes to release dates from the cards we're actually using
+   * Extract set release dates from cards for database storage
+   * This is a utility method used during import to populate the sets table
    */
   static extractSetReleaseDates(cards: ScryfallCard[]): Record<string, string> {
     console.log(`📅 Extracting set release dates from ${cards.length} cards...`);
@@ -39,8 +42,7 @@ export class CardProcessor {
     for (const card of cards) {
       if (!setDates[card.set]) {
         // Use the card's released_at if available, otherwise fall back to a default
-        // Note: Some cards might not have released_at, but most should
-        setDates[card.set] = card.released_at ?? "1993-01-01"; // Default to very old date
+        setDates[card.set] = card.released_at ?? "1993-01-01";
       }
     }
 
@@ -55,8 +57,11 @@ export class CardProcessor {
    * Since we've already filtered to valid cards, we just need to pick the best version
    * from the remaining candidates and track all sets the card appeared in
    */
-  static deduplicateCards(cards: ScryfallCard[], setReleaseDates: Record<string, string>): ScryfallCard[] {
+  static async deduplicateCards(cards: ScryfallCard[]): Promise<ScryfallCard[]> {
     console.log(`🔄 Deduplicating ${cards.length} valid cards by oracle_id...`);
+
+    // Get set release dates from database
+    const setReleaseDates = await SetsDatabaseService.getSetReleaseDates();
 
     const cardGroups = new Map<string, ScryfallCard[]>();
 
@@ -274,26 +279,22 @@ export class CardProcessor {
     console.log("🚀 Starting card processing pipeline...");
 
     // Stage 1: Filter for valid cards (Brawl-legal + English)
-    if (onProgress) onProgress("Filtering cards", 0, 4);
+    if (onProgress) onProgress("Filtering cards", 0, 3);
     const filtered = this.filterValidCards(cards);
 
-    // Stage 2: Extract set release dates from filtered cards
-    if (onProgress) onProgress("Extracting set data", 1, 4);
-    const setReleaseDates = this.extractSetReleaseDates(filtered);
+    // Stage 2: Deduplicate by oracle_id (gets set release dates from database)
+    if (onProgress) onProgress("Deduplicating cards", 1, 3);
+    const deduplicated = await this.deduplicateCards(filtered);
 
-    // Stage 3: Deduplicate by oracle_id
-    if (onProgress) onProgress("Deduplicating cards", 2, 4);
-    const deduplicated = this.deduplicateCards(filtered, setReleaseDates);
-
-    // Stage 4: Process into our format
-    if (onProgress) onProgress("Processing cards", 3, 4);
+    // Stage 3: Process into our format
+    if (onProgress) onProgress("Processing cards", 2, 3);
     const processed = this.processCards(deduplicated, (current, total) => {
       if (onProgress) {
-        onProgress(`Processing cards (${current}/${total})`, 3, 4);
+        onProgress(`Processing cards (${current}/${total})`, 2, 3);
       }
     });
 
-    if (onProgress) onProgress("Complete", 4, 4);
+    if (onProgress) onProgress("Complete", 3, 3);
 
     console.log("✅ Card processing pipeline complete");
     return processed;

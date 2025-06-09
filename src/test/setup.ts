@@ -42,16 +42,19 @@ global.assert = (condition: unknown, message?: string): asserts condition => {
 import { initializeGlobals } from '../shared/utils/setup';
 initializeGlobals();
 
-// Suppress console warnings in tests unless explicitly testing them
+// Suppress console output in tests unless explicitly testing them
 const originalConsoleWarn = console.warn;
 const originalConsoleError = console.error;
+const originalConsoleLog = console.log;
 
 beforeEach(() => {
   console.warn = jest.fn();
   console.error = jest.fn();
+  console.log = jest.fn(); // Suppress console.log during tests
 });
 
 afterEach(() => {
   console.warn = originalConsoleWarn;
   console.error = originalConsoleError;
+  console.log = originalConsoleLog;
 });

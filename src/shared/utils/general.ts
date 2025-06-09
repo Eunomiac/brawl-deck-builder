@@ -186,7 +186,7 @@ export const objectUtils = {
     if (typeof obj === "object") {
       const cloned = {} as T;
       Object.keys(obj).forEach(key => {
-        cloned[key as keyof typeof cloned] = objectUtils.deepClone(cloned[key as keyof typeof cloned]);
+        cloned[key as keyof typeof cloned] = objectUtils.deepClone(obj[key as keyof typeof obj]);
       });
       return cloned;
     }

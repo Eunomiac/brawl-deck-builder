@@ -256,3 +256,22 @@ export enum MTGRarity {
 }
 
 export const MTG_RARITIES = Object.values(MTGRarity);
+
+/**
+ * MTG Card Type Constants
+ */
+
+export enum MTGCardType {
+  Creature = "creature",
+  Instant = "instant",
+  Sorcery = "sorcery",
+  Artifact = "artifact",
+  Enchantment = "enchantment",
+  Planeswalker = "planeswalker",
+  Land = "land",
+  Battle = "battle",
+  Dungeon = "dungeon",
+  Emblem = "emblem"
+}
+
+export const MTG_CARD_TYPES = Object.values(MTGRarity);

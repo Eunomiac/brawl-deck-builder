@@ -236,7 +236,7 @@ export class ScryfallAPI {
         result[set.code] = {
           name: set.name,
           code: set.code,
-          released_at: set.released_at || null,
+          released_at: set.released_at ?? null,
           set_type: set.set_type,
           digital: set.digital,
         };
@@ -472,6 +472,6 @@ export class ScryfallUtils {
       }
     }
 
-    return Array.from(setCodes).sort();
+    return Array.from(setCodes).sort( (a, b) => a.localeCompare(b));
   }
 }

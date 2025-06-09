@@ -3,6 +3,7 @@
 
 import { CardProcessor } from "./processor";
 import { ScryfallUtils } from "./api";
+import { SetsDatabaseService } from "../sets/database";
 import type { ScryfallCard, ProcessedCard } from "../../types/mtg";
 
 // Mock global assert function
@@ -23,6 +24,13 @@ jest.mock("./api", () => ({
   }
 }));
 
+// Mock SetsDatabaseService
+jest.mock("../sets/database", () => ({
+  SetsDatabaseService: {
+    getSetReleaseDates: jest.fn(),
+  }
+}));
+
 // Mock ScryfallDebugger since it imports Supabase client
 jest.mock("./debug", () => ({
   ScryfallDebugger: {
@@ -34,6 +42,7 @@ jest.mock("./debug", () => ({
 
 describe("CardProcessor", () => {
   const mockScryfallUtils = ScryfallUtils as jest.Mocked<typeof ScryfallUtils>;
+const mockSetsDatabaseService = SetsDatabaseService as jest.Mocked<typeof SetsDatabaseService>;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -92,7 +101,17 @@ describe("CardProcessor", () => {
   });
 
   describe("deduplicateCards", () => {
-    it("should keep the most recent printing based on set code", () => {
+    beforeEach(() => {
+      // Mock the database service to return set release dates
+      mockSetsDatabaseService.getSetReleaseDates.mockResolvedValue({
+        "lea": "1993-08-05",
+        "m21": "2020-07-03",
+        "znr": "2020-09-25",
+        "akr": "2020-08-13"
+      });
+    });
+
+    it("should keep the most recent printing based on set code", async () => {
       const cards: Partial<ScryfallCard>[] = [
         {
           oracle_id: "same-oracle-id",
@@ -111,7 +130,7 @@ describe("CardProcessor", () => {
         }
       ];
 
-      const result = CardProcessor.deduplicateCards(cards as ScryfallCard[]);
+      const result = await CardProcessor.deduplicateCards(cards as ScryfallCard[]);
 
       expect(result).toHaveLength(2);
 
@@ -124,35 +143,35 @@ describe("CardProcessor", () => {
       expect(counterspell?.name).toBe("Counterspell");
     });
 
-    it("should handle cards with same oracle_id and same set", () => {
+    it("should handle cards with same oracle_id and same set", async () => {
       const cards: Partial<ScryfallCard>[] = [
         { oracle_id: "same-id", name: "Card A", set: "m21" },
         { oracle_id: "same-id", name: "Card A", set: "m21" }
       ];
 
-      const result = CardProcessor.deduplicateCards(cards as ScryfallCard[]);
+      const result = await CardProcessor.deduplicateCards(cards as ScryfallCard[]);
 
       expect(result).toHaveLength(1);
       expect(result[0].name).toBe("Card A");
     });
 
-    it("should handle empty input array", () => {
-      const result = CardProcessor.deduplicateCards([]);
+    it("should handle empty input array", async () => {
+      const result = await CardProcessor.deduplicateCards([]);
       expect(result).toEqual([]);
     });
 
-    it("should handle single card", () => {
+    it("should handle single card", async () => {
       const cards: Partial<ScryfallCard>[] = [
         { oracle_id: "single-id", name: "Single Card", set: "m21" }
       ];
 
-      const result = CardProcessor.deduplicateCards(cards as ScryfallCard[]);
+      const result = await CardProcessor.deduplicateCards(cards as ScryfallCard[]);
 
       expect(result).toHaveLength(1);
       expect(result[0].name).toBe("Single Card");
     });
 
-    it("should collect arena_legal_sets from all variants", () => {
+    it("should collect arena_legal_sets from all variants", async () => {
       const cards: ScryfallCard[] = [
         {
           oracle_id: "oracle-1",
@@ -171,11 +190,11 @@ describe("CardProcessor", () => {
         } as ScryfallCard,
       ];
 
-      const result = CardProcessor.deduplicateCards(cards);
+      const result = await CardProcessor.deduplicateCards(cards);
 
       expect(result).toHaveLength(1);
       expect(result[0].arena_legal_sets).toEqual(["akr", "m21", "znr"]); // Sorted alphabetically
-      expect(result[0].set).toBe("znr"); // Most recent set code (alphabetically last)
+      expect(result[0].set).toBe("znr"); // Most recent set code (by release date)
     });
   });
 
