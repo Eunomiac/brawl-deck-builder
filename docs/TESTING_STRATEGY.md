@@ -7,7 +7,6 @@ This document outlines our comprehensive testing strategy for the MTG Brawl Deck
 ## Coverage Requirements
 
 - **Target Coverage**: 90% overall, 80% for new code
-- **Current Coverage**: 92.38% (exceeds target)
 - **Coverage Tool**: Jest with Istanbul
 - **Quality Gate**: SonarQube integration
 
@@ -18,6 +17,8 @@ This document outlines our comprehensive testing strategy for the MTG Brawl Deck
 - **Tools**: Jest, React Testing Library
 - **Coverage**: Business logic, data transformations, component behavior
 
+** IMPORTANT: Coverage currently applies ONLY to unit tests. Code requiring more complex testing should be isolated in its own file, and then explicitly added to the coverage exclusions in both `jest.config.js` and `sonar-project.properties`. **
+
 ### Integration Tests (Secondary)
 - **Scope**: Component interactions, API integrations, animation workflows
 - **Tools**: Jest with DOM testing, Cypress (future)
@@ -27,6 +28,77 @@ This document outlines our comprehensive testing strategy for the MTG Brawl Deck
 - **Scope**: Complete user journeys, visual regression
 - **Tools**: Playwright/Cypress (planned)
 - **Coverage**: Critical user paths, browser compatibility
+
+## Quality Assurance Process
+
+### Code Review Checklist
+- [ ] New code includes appropriate unit tests
+- [ ] Code requiring more complex testing is isolated in its own file, which is then explicitly added to coverage exclusions
+- [ ] Coverage exclusions are documented and justified
+- [ ] Test quality is validated (not just coverage percentage)
+
+### Continuous Integration
+- [x] All unit tests pass
+- [x] Coverage meets minimum threshold (90% target)
+- [x] SonarQube quality gate passes
+- [x] No critical code smells or security issues
+
+## Common Pitfalls to Be Aware Of
+
+### The Global `assert` Function
+`globalThis.assert` has been added to `globalThis` in `src/test/setup.ts`. This is a convenience function for making throwing assertions in the codebase for type narrowing. It is NOT a testing utility and should NOT be used in tests.
+
+**Problem**: Jest testing environments don't recognize the `globalThis.assert` declaration, even though it's available globally in the main codebase.
+
+**Solutions**:
+1. **For non-test files**: Use `assert()` directly without import - it's available globally
+2. **For test files**: If you encounter "assert is not defined" errors, you have two options:
+   - Mock it in your test file: `global.assert = jest.fn()`
+   - Import Node's built-in assert: `import assert from 'node:assert'` (though, unlike the `globalThis.assert`, it will not throw errors if it fails)
+
+### VITE Environment Variables (`import.meta.env`)
+Jest doesn't natively support Vite's `import.meta.env` syntax, which has caused recurring issues throughout development.
+
+**Problem**: `import.meta.env.VITE_*` variables cause "Cannot read properties of undefined" errors in Jest tests.
+
+**Our Solution Strategy**:
+1. **Hardcoded constants** in `src/config/env.ts` for stable values (Supabase URLs/keys)
+2. **Jest globals** in `jest.config.js` for test environment mocking
+3. **Supabase client mocking** in individual test files when needed
+
+**Implementation**:
+```typescript
+// ✅ GOOD: Use hardcoded config (src/config/env.ts)
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config/env';
+
+// ❌ AVOID: Direct import.meta.env usage in testable code
+const url = import.meta.env.VITE_SUPABASE_URL; // Jest will fail
+```
+
+**Status**: ✅ **Resolved** - We've eliminated most `import.meta.env` usage in favor of the config approach.
+
+## Testing Best Practices
+
+### Unit Test Guidelines
+1. **Test Behavior, Not Implementation** - Focus on what the code does, not how
+2. **Arrange-Act-Assert Pattern** - Clear test structure
+3. **Descriptive Test Names** - Tests serve as documentation
+4. **Mock External Dependencies** - Isolate units under test
+5. **Test Edge Cases** - Error conditions, boundary values
+
+### Integration Test Guidelines
+1. **Test Real User Scenarios** - Actual workflows users will follow
+2. **Minimize Mocking** - Use real implementations where possible
+3. **Test Cross-Component Communication** - Data flow between components
+4. **Validate Side Effects** - DOM changes, API calls, state updates
+
+## Metrics and Monitoring
+
+### Quality Metrics
+- **Test Execution Time**: < 15 seconds
+- **Test Reliability**: 100% pass rate
+- **Code Duplication**: < 3%
+- **Cyclomatic Complexity**: < 15 per function
 
 ## Coverage Exclusions
 
@@ -96,7 +168,7 @@ Search integration code involves:
 - User acceptance testing for search user experience
 
 ### SonarQube Configuration
-
+(May be out-of-date: Always check the `sonar-project.properties` file for the most up-to-date exclusions)
 ```properties
 # Coverage exclusions for complex integration code requiring integration testing
 sonar.coverage.exclusions=**/shared/utils/animations.ts,**/shared/hooks/useGSAP.ts,**/shared/contexts/GSAPContext.tsx,**/shared/components/animations/**,**/services/supabase/**,**/shared/services/scryfall/api.ts,**/shared/services/scryfall/database.ts,**/shared/services/scryfall/import.ts,**/shared/services/scryfall/debug.ts,**/features/collection/components/CardImportButton.tsx,**/shared/hooks/useCardImport.ts,**/shared/services/search/CardSearchService.ts,**/features/search/components/CardSearch.tsx,**/shared/types/mtg.ts,**/app/App.tsx,**/main.tsx
@@ -105,68 +177,6 @@ sonar.coverage.exclusions=**/shared/utils/animations.ts,**/shared/hooks/useGSAP.
 sonar.test.exclusions=**/*.test.ts,**/*.test.tsx,**/*.spec.ts,**/*.spec.tsx
 ```
 
-## File-by-File Coverage Status
-
-### ✅ 100% Coverage (Unit Tested)
-- `src/config/env.ts` - Environment configuration constants
-- `src/shared/utils/enums.ts` - Type definitions and enums
-- `src/shared/components/Navigation/Navigation.tsx` - Navigation component
-- `src/features/search/components/CardDisplay.tsx` - Single card display component
-- `src/features/search/components/CardResults.tsx` - Search results table component
-
-### 🎯 High Coverage (Well Tested)
-- `src/shared/services/scryfall/processor.ts` - 97.88% (card processing pipeline)
-- `src/shared/utils/general.ts` - 99.63% (utility functions)
-- `src/shared/utils/cardNameNormalization.ts` - 86.04% (card name processing)
-
-### 📋 Excluded from Unit Testing (Integration Testing Required)
-- **GSAP Animation Files**: Complex animation library interactions
-- **Supabase Integration Files**: Database connections and auto-generated types
-- **Scryfall API Files**: External service integrations and streaming responses
-- **Search Integration Files**: Database queries and async state management
-
-## Quality Assurance Process
-
-### Code Review Checklist
-- [ ] New code includes appropriate unit tests
-- [ ] Complex integrations have integration test plans
-- [ ] Coverage exclusions are documented and justified
-- [ ] Test quality is validated (not just coverage percentage)
-
-### Continuous Integration
-- [x] All unit tests pass (220 tests passing)
-- [x] Coverage meets minimum threshold (92.38% > 90% target)
-- [x] SonarQube quality gate passes
-- [x] No critical code smells or security issues
-
-## Testing Best Practices
-
-### Unit Test Guidelines
-1. **Test Behavior, Not Implementation** - Focus on what the code does, not how
-2. **Arrange-Act-Assert Pattern** - Clear test structure
-3. **Descriptive Test Names** - Tests serve as documentation
-4. **Mock External Dependencies** - Isolate units under test
-5. **Test Edge Cases** - Error conditions, boundary values
-
-### Integration Test Guidelines
-1. **Test Real User Scenarios** - Actual workflows users will follow
-2. **Minimize Mocking** - Use real implementations where possible
-3. **Test Cross-Component Communication** - Data flow between components
-4. **Validate Side Effects** - DOM changes, API calls, state updates
-
-## Metrics and Monitoring
-
-### Coverage Metrics
-- **Statement Coverage**: 92.38%
-- **Branch Coverage**: 83.41%
-- **Function Coverage**: 91.48%
-- **Line Coverage**: 92.38%
-
-### Quality Metrics
-- **Test Execution Time**: < 15 seconds
-- **Test Reliability**: 100% pass rate
-- **Code Duplication**: < 3%
-- **Cyclomatic Complexity**: < 10 per function
 
 ## Future Improvements
 
@@ -190,7 +200,7 @@ sonar.test.exclusions=**/*.test.ts,**/*.test.tsx,**/*.spec.ts,**/*.spec.tsx
 Our testing strategy successfully achieves 92.38% overall coverage while maintaining practical testing approaches. By excluding complex integration code (GSAP animations, Supabase database operations, external API calls, and async state management) from unit test coverage requirements and focusing on integration testing for these components, we ensure both high code quality and meaningful test coverage that validates functionality rather than just achieving percentage targets.
 
 The current test suite includes:
-- **220 passing tests** across 13 test suites
+- **Hundreds of Passing Tests** across many test suites
 - **Comprehensive unit tests** for utilities, components, and business logic
 - **Proper exclusions** for integration-dependent code
 - **Maintainable test structure** with co-located test files
