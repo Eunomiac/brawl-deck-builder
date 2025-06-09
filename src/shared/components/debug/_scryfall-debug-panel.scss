@@ -2,7 +2,26 @@
 @use '../../../styles/variables' as *;
 
 .scryfall-debug-panel {
-  max-width: 1200px;
+
+  $spacing-scale: 0.25;
+  $font-scale: 0.85;
+
+
+  $spacing-xs: $spacing-scale * $spacing-xs;
+  $spacing-sm: $spacing-scale * $spacing-sm;
+  $spacing-md: $spacing-scale * $spacing-md;
+  $spacing-lg: $spacing-scale * $spacing-lg;
+  $spacing-xl: $spacing-scale * $spacing-xl;
+  $spacing-xxl: $spacing-scale * $spacing-xxl;
+
+  $font-size-xs: $font-scale * $font-size-xs;
+  $font-size-sm: $font-scale * $font-size-sm;
+  $font-size-base: $font-scale * $font-size-base;
+  $font-size-lg: $font-scale * $font-size-lg;
+  $font-size-xl: $font-scale * $font-size-xl;
+  $font-size-xxl: $font-scale * $font-size-xxl;
+
+  max-width: 1900px;
   margin: 0 auto;
   padding: $spacing-lg;
 
@@ -24,13 +43,24 @@
 
   .debug-content {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: $spacing-xl;
     align-items: start;
+    width: 1800px;
+    margin-left: -350px;
 
-    @media (max-width: 1024px) {
-      grid-template-columns: 1fr;
+    // Three-panel layout when database results are shown
+    &.three-panel {
+      grid-template-columns: 1fr 1fr 1fr;
+      max-width: 1900px;
     }
+  }
+
+  .debug-oracle-column {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+    width: 800px;
   }
 
   .debug-controls {
@@ -63,6 +93,20 @@
         gap: $spacing-sm;
         align-items: center;
         flex-wrap: wrap;
+      }
+
+      .form-helper {
+        font-size: $font-size-xs;
+        color: $text-secondary;
+        margin-top: $spacing-xs;
+        font-family: monospace;
+
+        code {
+          background: rgba($accent-color, 0.1);
+          padding: 2px 4px;
+          border-radius: 2px;
+          color: $accent-color;
+        }
       }
     }
 
@@ -313,6 +357,128 @@
     &:hover:not(:disabled) {
       background: rgba(248, 113, 113, 0.2);
       border-color: #f87171;
+    }
+  }
+
+  // Database Results Panel Styles
+  .debug-database-results {
+    background: rgba($background-color, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: $border-radius-md;
+    border: 1px solid rgba($accent-color, 0.2);
+    padding: $spacing-lg;
+    height: fit-content;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: $spacing-md;
+      padding-bottom: $spacing-sm;
+      border-bottom: 1px solid rgba($accent-color, 0.2);
+
+      h3 {
+        color: $accent-color;
+        margin: 0;
+        font-size: $font-size-lg;
+        font-family: $font-family-heading;
+      }
+
+      .btn-small {
+        padding: $spacing-xs $spacing-sm;
+        font-size: $font-size-xs;
+        background: rgba($accent-color, 0.1);
+        border: 1px solid rgba($accent-color, 0.3);
+        color: $text-color;
+        border-radius: $border-radius-sm;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: rgba($accent-color, 0.2);
+          border-color: $accent-color;
+        }
+      }
+    }
+
+    .database-query-info {
+      background: rgba($accent-color, 0.05);
+      border: 1px solid rgba($accent-color, 0.2);
+      border-radius: $border-radius-sm;
+      padding: $spacing-sm;
+      margin-bottom: $spacing-md;
+      font-size: $font-size-sm;
+      color: $text-color;
+      line-height: 1.4;
+
+      strong {
+        color: $accent-color;
+      }
+    }
+
+    .database-results-content {
+      flex: 1;
+      overflow-y: auto;
+      max-height: 60vh;
+
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: rgba($background-color, 0.1);
+        border-radius: 3px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: rgba($accent-color, 0.3);
+        border-radius: 3px;
+
+        &:hover {
+          background: rgba($accent-color, 0.5);
+        }
+      }
+
+      .database-data {
+        font-family: monospace;
+        font-size: $font-size-xs;
+        line-height: 1.4;
+        color: $text-color;
+        background: rgba($background-color, 0.1);
+        border: 1px solid rgba($accent-color, 0.1);
+        border-radius: $border-radius-sm;
+        padding: $spacing-md;
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow-x: auto;
+      }
+
+      .database-error {
+        background: rgba(248, 113, 113, 0.1);
+        border: 1px solid rgba(248, 113, 113, 0.3);
+        border-radius: $border-radius-sm;
+        padding: $spacing-md;
+        color: #f87171;
+        font-size: $font-size-sm;
+
+        strong {
+          color: #f87171;
+        }
+      }
+
+      .no-database-results {
+        text-align: center;
+        color: $text-secondary;
+        font-style: italic;
+        padding: $spacing-xl;
+        background: rgba($background-color, 0.1);
+        border: 1px solid rgba($accent-color, 0.1);
+        border-radius: $border-radius-sm;
+      }
     }
   }
 }

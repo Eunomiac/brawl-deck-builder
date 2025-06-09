@@ -24,11 +24,11 @@ class TestCardPile extends CardPile {
     this.removalError = error;
   }
 
-  protected validateCardAddition(_card: ProcessedCard): CardValidationResult {
+  protected validateCardAddition(card: ProcessedCard): CardValidationResult {
     if (this.shouldFailAddition) {
       return {
         isValid: false,
-        errors: [this.additionError],
+        errors: [`${this.additionError} for ${card.name}`],
         warnings: [],
       };
     }
@@ -39,11 +39,11 @@ class TestCardPile extends CardPile {
     };
   }
 
-  protected validateCardRemoval(_card: ProcessedCard): CardValidationResult {
+  protected validateCardRemoval(card: ProcessedCard): CardValidationResult {
     if (this.shouldFailRemoval) {
       return {
         isValid: false,
-        errors: [this.removalError],
+        errors: [`${this.removalError} for ${card.name}`],
         warnings: [],
       };
     }
@@ -340,7 +340,7 @@ describe("CardPile", () => {
       const result = testPile.addCard(mockRedCreature, { validateFormat: true });
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toEqual(["Custom addition error"]);
+      expect(result.errors).toEqual(["Custom addition error for Red Creature"]);
       expect(testPile.cardCount).toBe(0);
     });
 
@@ -355,7 +355,7 @@ describe("CardPile", () => {
       const result = testPile.removeCard(mockRedCreature);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toEqual(["Custom removal error"]);
+      expect(result.errors).toEqual(["Custom removal error for Red Creature"]);
       expect(testPile.cardCount).toBe(1); // Card should still be there
     });
 
@@ -370,7 +370,7 @@ describe("CardPile", () => {
       const result = testPile.removeCards([mockRedCreature, mockBlueInstant]);
 
       expect(result.isValid).toBe(false);
-      expect(result.errors).toEqual(["Batch removal error"]);
+      expect(result.errors).toEqual(["Batch removal error for Red Creature"]);
       expect(testPile.cardCount).toBe(2); // Both cards should still be there
     });
 
@@ -425,11 +425,11 @@ describe("CardPile", () => {
     it("should handle cards with null/undefined properties", () => {
       const cardWithNulls = createMockCard({
         oracle_id: "null-card",
-        color_identity: null as any,
-        type_line: null as any,
-        cmc: null as any,
-        name: null as any,
-        search_key: null as any,
+        color_identity: undefined,
+        type_line: undefined,
+        cmc: undefined,
+        name: undefined,
+        search_key: undefined,
       });
 
       cardPile.addCard(cardWithNulls);
@@ -448,8 +448,8 @@ describe("CardPile", () => {
     it("should handle search with null name and search_key", () => {
       const cardWithNulls = createMockCard({
         oracle_id: "null-search-card",
-        name: null as any,
-        search_key: null as any,
+        name: undefined,
+        search_key: undefined,
       });
 
       cardPile.addCard(cardWithNulls);
@@ -476,7 +476,7 @@ describe("CardPile", () => {
     it("should handle mana distribution with unknown colors", () => {
       const cardWithUnknownColor = createMockCard({
         oracle_id: "unknown-color-card",
-        color_identity: ["X" as any], // Unknown color
+        color_identity: ["X"], // Unknown color for testing
       });
 
       cardPile.addCard(cardWithUnknownColor);

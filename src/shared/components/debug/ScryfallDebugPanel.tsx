@@ -4,6 +4,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ScryfallDebugger, type DebugSummary } from "../../services/scryfall/debug";
 import type { Json } from "../../../services/supabase/types";
+import { supabase } from "../../../services/supabase";
 
 // Database card type (matches the debug service)
 type DatabaseCard = {
@@ -31,6 +32,14 @@ interface DebugResult {
   timestamp: Date;
 }
 
+interface DatabaseQueryResult {
+  data: Json[] | null;
+  count: number;
+  error?: string;
+  query: string;
+  timestamp: Date;
+}
+
 export const ScryfallDebugPanel: React.FC = () => {
   // State for various debug operations
   const [searchTerm, setSearchTerm] = useState("");
@@ -39,6 +48,15 @@ export const ScryfallDebugPanel: React.FC = () => {
   const [currentWatchTerm, setCurrentWatchTerm] = useState<string | null>(null);
   const [results, setResults] = useState<DebugResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Database query state
+  const [sqlSelect, setSqlSelect] = useState("*");
+  const [sqlFilter, setSqlFilter] = useState("");
+  const [dbQueryResult, setDbQueryResult] = useState<DatabaseQueryResult | null>(null);
+
+  // Scryfall ID query state
+  const [scryfallId, setScryfallId] = useState("");
+  const [scryfallQueryResult, setScryfallQueryResult] = useState<DatabaseQueryResult | null>(null);
 
   interface DebugFilterCriteria {
     rarity: string;
@@ -83,8 +101,52 @@ export const ScryfallDebugPanel: React.FC = () => {
     setResults(prev => [...prev, { ...result, timestamp: new Date() }]);
   };
 
-  const clearResults = () => {
-    setResults([]);
+  const renderDatabaseResults = (queryResult: DatabaseQueryResult) => {
+    if (queryResult.error) {
+      return (
+        <div className="database-error">
+          <strong>Error:</strong> {queryResult.error}
+        </div>
+      );
+    }
+
+    if (queryResult.data && queryResult.data.length > 0) {
+      return (
+        <pre className="database-data">
+          {JSON.stringify(queryResult.data, null, 2)}
+        </pre>
+      );
+    }
+
+    return (
+      <div className="no-database-results">
+        No data returned from query.
+      </div>
+    );
+  };
+
+  const renderScryfallResults = (queryResult: DatabaseQueryResult) => {
+    if (queryResult.error) {
+      return (
+        <div className="database-error">
+          <strong>Error:</strong> {queryResult.error}
+        </div>
+      );
+    }
+
+    if (queryResult.data && queryResult.data.length > 0) {
+      return (
+        <pre className="database-data">
+          {JSON.stringify(queryResult.data, null, 2)}
+        </pre>
+      );
+    }
+
+    return (
+      <div className="no-database-results">
+        No results found for this ID.
+      </div>
+    );
   };
 
   const formatCardData = (cards: DatabaseCard[]): string => {
@@ -315,6 +377,192 @@ ${Object.entries(summary.bySets)
     }
   };
 
+  const handleDatabaseQuery = async () => {
+    if (!sqlSelect.trim()) {
+      addResult({
+        type: "error",
+        title: "Database Query Error",
+        content: "Please enter columns to select (e.g., *, name, rarity, cmc)"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      let query = supabase.from("cards").select(sqlSelect.trim());
+      let queryDescription = `SELECT ${sqlSelect.trim()} FROM cards`;
+
+      // Apply filters if provided
+      if (sqlFilter.trim()) {
+        const filters = sqlFilter.trim().split(",");
+        for (const filter of filters) {
+          const trimmedFilter = filter.trim();
+          if (trimmedFilter.includes(".eq.")) {
+            const [field, value] = trimmedFilter.split(".eq.");
+            query = query.eq(field.trim(), value.trim());
+            queryDescription += ` WHERE ${field.trim()} = '${value.trim()}'`;
+          } else if (trimmedFilter.includes(".neq.")) {
+            const [field, value] = trimmedFilter.split(".neq.");
+            query = query.neq(field.trim(), value.trim());
+            queryDescription += ` WHERE ${field.trim()} != '${value.trim()}'`;
+          } else if (trimmedFilter.includes(".gt.")) {
+            const [field, value] = trimmedFilter.split(".gt.");
+            query = query.gt(field.trim(), parseInt(value.trim()));
+            queryDescription += ` WHERE ${field.trim()} > ${value.trim()}`;
+          } else if (trimmedFilter.includes(".lt.")) {
+            const [field, value] = trimmedFilter.split(".lt.");
+            query = query.lt(field.trim(), parseInt(value.trim()));
+            queryDescription += ` WHERE ${field.trim()} < ${value.trim()}`;
+          }
+        }
+      }
+
+      const result = await query.limit(100);
+
+      const queryResult: DatabaseQueryResult = {
+        data: result.data as Json[] | null,
+        count: result.data?.length ?? 0,
+        error: result.error?.message,
+        query: `${queryDescription} LIMIT 100`,
+        timestamp: new Date()
+      };
+
+      setDbQueryResult(queryResult);
+
+      if (result.error) {
+        addResult({
+          type: "error",
+          title: "Database Query Error",
+          content: result.error.message
+        });
+      } else {
+        addResult({
+          type: "success",
+          title: "Database Query Executed",
+          content: `Query executed successfully. ${queryResult.count} records returned. ${queryResult.count > 0 ? "Database results panel is now visible on the right." : ""}`
+        });
+      }
+    } catch (err) {
+      addResult({
+        type: "error",
+        title: "Database Query Error",
+        content: err instanceof Error ? err.message : String(err)
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleOracleIdQuery = async () => {
+    if (!scryfallId.trim()) {
+      addResult({
+        type: "error",
+        title: "Oracle ID Query Error",
+        content: "Please enter an Oracle ID"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Query Scryfall API for all printings of this oracle ID
+      const response = await fetch(`https://api.scryfall.com/cards/search?q=oracle_id:${scryfallId.trim()}+game:arena`);
+
+      if (!response.ok) {
+        throw new Error(`Scryfall API error: ${response.status} ${response.statusText}`);
+      }
+
+      const scryfallData = await response.json();
+
+      const queryResult: DatabaseQueryResult = {
+        data: scryfallData.data ?? [],
+        count: scryfallData.data?.length ?? 0,
+        error: scryfallData.object === "error" ? scryfallData.details : undefined,
+        query: `Scryfall API: oracle_id:${scryfallId.trim()}+game:arena`,
+        timestamp: new Date()
+      };
+
+      setScryfallQueryResult(queryResult);
+
+      if (scryfallData.object === "error") {
+        addResult({
+          type: "error",
+          title: "Oracle ID Query Error",
+          content: scryfallData.details ?? "Unknown Scryfall API error"
+        });
+      } else {
+        addResult({
+          type: "success",
+          title: "Oracle ID Query Executed",
+          content: `Found ${queryResult.count} Arena-playable printings. ${queryResult.count > 0 ? "Scryfall results panel is now visible on the right." : ""}`
+        });
+      }
+    } catch (err) {
+      addResult({
+        type: "error",
+        title: "Oracle ID Query Error",
+        content: err instanceof Error ? err.message : String(err)
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleScryfallIdQuery = async () => {
+    if (!scryfallId.trim()) {
+      addResult({
+        type: "error",
+        title: "Scryfall ID Query Error",
+        content: "Please enter a Scryfall ID"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Query Scryfall API for this specific card ID
+      const response = await fetch(`https://api.scryfall.com/cards/${scryfallId.trim()}`);
+
+      if (!response.ok) {
+        throw new Error(`Scryfall API error: ${response.status} ${response.statusText}`);
+      }
+
+      const scryfallData = await response.json();
+
+      const queryResult: DatabaseQueryResult = {
+        data: [scryfallData], // Single card result
+        count: 1,
+        error: scryfallData.object === "error" ? scryfallData.details : undefined,
+        query: `Scryfall API: /cards/${scryfallId.trim()}`,
+        timestamp: new Date()
+      };
+
+      setScryfallQueryResult(queryResult);
+
+      if (scryfallData.object === "error") {
+        addResult({
+          type: "error",
+          title: "Scryfall ID Query Error",
+          content: scryfallData.details ?? "Unknown Scryfall API error"
+        });
+      } else {
+        addResult({
+          type: "success",
+          title: "Scryfall ID Query Executed",
+          content: `Found card: ${scryfallData.name}. Scryfall results panel is now visible on the right.`
+        });
+      }
+    } catch (err) {
+      addResult({
+        type: "error",
+        title: "Scryfall ID Query Error",
+        content: err instanceof Error ? err.message : String(err)
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="scryfall-debug-panel">
       <div className="debug-header">
@@ -324,8 +572,50 @@ ${Object.entries(summary.bySets)
         </p>
       </div>
 
-      <div className="debug-content">
+      <div className={`debug-content ${dbQueryResult || scryfallQueryResult ? "three-panel" : ""}`}>
+
+
         <div className="debug-controls">
+
+          {/* Database Query Section */}
+          <div className="debug-section">
+            <h3>🗄️ Database Query</h3>
+            <div className="debug-form">
+              <div className="form-row">
+                <input
+                  type="text"
+                  placeholder="Columns (e.g., *, name,rarity,cmc)"
+                  value={sqlSelect}
+                  onChange={(e) => setSqlSelect(e.target.value)}
+                  className="debug-input"
+                />
+                <input
+                  type="text"
+                  placeholder="Filters (e.g., rarity.eq.mythic, cmc.gt.5)"
+                  value={sqlFilter}
+                  onChange={(e) => setSqlFilter(e.target.value)}
+                  className="debug-input"
+                />
+                <button
+                  className="btn-secondary"
+                  onClick={handleDatabaseQuery}
+                  disabled={isLoading}
+                >
+                  Submit
+                </button>
+              </div>
+              <div className="form-helper">
+                Query: <code>SELECT {sqlSelect || "*"} FROM cards{sqlFilter ? ` WHERE ${sqlFilter}` : ""} LIMIT 100</code>
+                <br />
+                <small>
+                  <strong>Operators:</strong> .eq. (equals), .neq. (not equals), .gt. (greater), .lt. (less), .gte. (≥), .lte. (≤)
+                  <br />
+                  <strong>Logic:</strong> Use commas for AND logic (e.g., rarity.eq.mythic,cmc.gt.5). OR logic requires separate queries.
+                </small>
+              </div>
+            </div>
+          </div>
+
           {/* Import Summary Section */}
           <div className="debug-section">
             <h3>📊 Import Summary</h3>
@@ -513,36 +803,95 @@ ${Object.entries(summary.bySets)
           </div>
         </div>
 
-        {/* Results Display */}
-        <div className="debug-results">
-          <div className="results-header">
-            <h3>📋 Results</h3>
-            <button
-              className="btn-small"
-              onClick={clearResults}
-            >
-              Clear
-            </button>
+        {/* Database Results Panel */}
+        <div className="debug-controls">
+        {dbQueryResult && (
+          <div className="debug-database-results">
+            <div className="results-header">
+              <h3>🗄️ Database Results</h3>
+              <button
+                className="btn-small"
+                onClick={() => setDbQueryResult(null)}
+              >
+                Close
+              </button>
+            </div>
+            <div className="database-query-info">
+              <strong>Query:</strong> {dbQueryResult.query}
+              <br />
+              <strong>Count:</strong> {dbQueryResult.count} records
+              <br />
+              <strong>Executed:</strong> {dbQueryResult.timestamp.toLocaleTimeString()}
+            </div>
+            <div className="database-results-content">
+              {renderDatabaseResults(dbQueryResult)}
+            </div>
           </div>
-          <div className="results-content" ref={resultsRef}>
-            {results.length === 0 ? (
-              <div className="no-results">
-                No debug operations performed yet. Use the controls above to start debugging.
+        )}
+        </div>
+
+        {/* Oracle ID Column */}
+        <div className="debug-oracle-column">
+
+          {/* Oracle ID Query Section */}
+          <div className="debug-section">
+            <h3>� Oracle ID Lookup</h3>
+            <div className="debug-form">
+              <div className="form-row">
+                <input
+                  type="text"
+                  placeholder="ID (Oracle ID or Scryfall ID)"
+                  value={scryfallId}
+                  onChange={(e) => setScryfallId(e.target.value)}
+                  className="debug-input"
+                />
+                <button
+                  className="btn-secondary"
+                  onClick={handleOracleIdQuery}
+                  disabled={isLoading}
+                >
+                  Oracle ID
+                </button>
+                <button
+                  className="btn-secondary"
+                  onClick={handleScryfallIdQuery}
+                  disabled={isLoading}
+                >
+                  ID
+                </button>
               </div>
-            ) : (
-              results.map((result, index) => (
-                <div key={`result-${result.timestamp.getTime()}-${index}`} className={`result-item result-${result.type}`}>
-                  <div className="result-header">
-                    <span className="result-title">{result.title}</span>
-                    <span className="result-timestamp">
-                      {result.timestamp.toLocaleTimeString()}
-                    </span>
-                  </div>
-                  <pre className="result-content">{result.content}</pre>
-                </div>
-              ))
-            )}
+              <div className="form-helper">
+                <strong>Oracle ID:</strong> Finds all Arena-playable printings of a card
+                <br />
+                <strong>ID:</strong> Finds specific card by Scryfall ID
+              </div>
+            </div>
           </div>
+
+          {/* Scryfall Results Panel */}
+          {scryfallQueryResult && (
+            <div className="debug-database-results">
+              <div className="results-header">
+                <h3>🔮 Scryfall Results</h3>
+                <button
+                  className="btn-small"
+                  onClick={() => setScryfallQueryResult(null)}
+                >
+                  Close
+                </button>
+              </div>
+              <div className="database-query-info">
+                <strong>Query:</strong> {scryfallQueryResult.query}
+                <br />
+                <strong>Count:</strong> {scryfallQueryResult.count} results
+                <br />
+                <strong>Executed:</strong> {scryfallQueryResult.timestamp.toLocaleTimeString()}
+              </div>
+              <div className="database-results-content">
+                {renderScryfallResults(scryfallQueryResult)}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

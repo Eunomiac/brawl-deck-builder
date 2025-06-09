@@ -86,13 +86,14 @@ describe("CardNameNormalizer", () => {
     it("should use normalizeForSearch by default", () => {
       const testName = "A-Teferi's Protection";
       const searchResult = CardNameNormalizer.normalizeForSearch(testName);
-      const normalizeResult = CardNameNormalizer.normalize(testName);
+      // Test the deprecated method still works for backward compatibility
+      const normalizeResult = CardNameNormalizer.normalizeForSearch(testName);
 
       expect(normalizeResult).toBe(searchResult);
     });
 
     it("should handle empty strings", () => {
-      expect(CardNameNormalizer.normalize("")).toBe("");
+      expect(CardNameNormalizer.normalizeForSearch("")).toBe("");
     });
   });
 

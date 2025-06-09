@@ -540,11 +540,11 @@ export class BasicCardPile extends CardPile {
   }
 
   protected validateCardRemoval(_card: ProcessedCard): CardValidationResult { // eslint-disable-line @typescript-eslint/no-unused-vars
-    // Basic implementation allows all removals
+    // Basic implementation allows all removals - no restrictions on removal
     return {
       isValid: true,
       errors: [],
-      warnings: []
+      warnings: [] // Empty warnings for removal validation
     };
   }
 }
